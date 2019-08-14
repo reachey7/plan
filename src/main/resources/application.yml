@@ -1,0 +1,28 @@
+server:
+  port: 8083
+
+mybatis-plus:
+ mapper-locations: classpath:com/hb/mapper/*Mapper.xml
+ typeAliasesPackage: com.hb.entity
+
+spring:
+  datasource:
+    url: jdbc:mysql://39.98.59.64:3306/logistics-plus?useUnicode=true&characterEncoding=UTF-8
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: hebang123456
+  thymeleaf:
+    mode: HTML
+    encoding: utf-8
+    cache: false
+    prefix: classpath:/templates/
+  devtools:
+    restart:
+     enabled: false
+  application:
+   name: LogisticPlan
+   
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8888/eureka/

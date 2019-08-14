@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mapper.DormitoryPartMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hb.entity.DormitoryPart">
+        <id column="ID" property="id" />
+        <result column="PART_CODE" property="partCode" />
+        <result column="PLAN_ID" property="planId" />
+        <result column="PART_NAME" property="partName" />
+        <result column="GRADE" property="grade" />
+        <result column="CREATE_TIME" property="createTime" />
+        <result column="CREATE_PERSON_ID" property="createPersonId" />
+        <result column="CURRENT_PERSON_ID" property="currentPersonId" />
+        <result column="PART_BEGIN" property="partBegin" />
+        <result column="PART_END" property="partEnd" />
+        <result column="PART_STATUS" property="partStatus" />
+        <result column="STUDENT_NUMBER" property="studentNumber" />
+        <result column="CURRENT_PERSON" property="currentPerson" />
+        <result column="BED_NUMBER" property="bedNumber" />
+        <result column="DISTRIBUTE_NUMBER" property="distributeNumber" />
+        <result column="PART_RULE" property="partRule" />
+        <result column="REMARK" property="remark" />
+        <result column="FP_BED_NUMBER" property="fpBedNumber" />
+        <result column="HF_BED_NUMBER" property="hfBedNumber" />
+    </resultMap>
+
+
+    <select id="selectDormitoryPart" resultType="java.util.Map"
+            parameterType="java.util.Map">
+        SELECT t.`VALUE2` ,p.* FROM `dormitory_part` p,sys_cparam t WHERE p.`Part_STATUS`=t.`value1`
+
+        <if test="param.partStatus != null and param.partStatus != ''">
+            and p.PART_STATUS = #{param.partStatus,jdbcType=VARCHAR}
+        </if>
+
+        <if test="param.startTime != null and param.startTime != '' ">
+            and
+            str_to_date(p.CREATE_TIME, '%Y-%m-%d %H:%i:%s') &gt;= str_to_date(#{param.startTime,jdbcType=VARCHAR},'%Y-%m-%d %H:%i:%s' )
+        </if>
+
+        <if test="param.endTime != null and param.endTime != ''">
+            and
+            str_to_date(p.CREATE_TIME,'%Y-%m-%d %H:%i:%s' ) &lt;= str_to_date( #{param.endTime,jdbcType=VARCHAR},'%Y-%m-%d %H:%i:%s')
+        </if>
+
+
+        <if test="param.partName != null and param.partName != ''">
+            and p.PART_NAME = #{param.partName,jdbcType=VARCHAR}
+        </if>
+
+        <if test="param.partCode != null and param.partCode != ''">
+            and p.PART_CODE = #{param.partCode,jdbcType=VARCHAR}
+        </if>
+
+        <if test="param.id != null and param.id != ''">
+            and p.ID = #{param.id,jdbcType=VARCHAR}
+        </if>
+
+        <if test="param.planId != null and param.planId != ''">
+            and p.PLAN_ID = #{param.planId,jdbcType=VARCHAR}
+        </if>
+
+    </select>
+
+</mapper>
