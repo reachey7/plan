@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mapper.DormitoryBedStuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hb.entity.DormitoryBedStu">
+        <id column="ID" property="id"/>
+        <result column="STUDENT_ID" property="studentId"/>
+        <result column="BED_ID" property="bedId"/>
+        <result column="OPERATOR_ID" property="operatorId"/>
+        <result column="OPERAT_DATE" property="operatDate"/>
+        <result column="STATE" property="state"/>
+        <result column="BEGIN_DATE" property="beginDate"/>
+        <result column="END_DATE" property="endDate"/>
+        <result column="IN_MODE" property="inMode"/>
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mapper.DormitoryStuBedPlanMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hb.entity.DormitoryStuBedPlan">
+        <id column="ID" property="id"/>
+        <result column="STU_ID" property="stuId"/>
+        <result column="BED_ID" property="bedId"/>
+        <result column="PLAN_ID" property="planId"/>
+        <result column="PART_ID" property="partId"/>
+        <result column="OPERATOR_PERSON" property="operatorPerson"/>
+        <result column="CREATE_DATE" property="createDate"/>
+        <result column="STATE" property="state"/>
+        <result column="TYPE" property="type"/>
+    </resultMap>
+    <select id="selectStuBedPlan" resultType="java.util.Map"
+            parameterType="java.util.Map">
+        SELECT
+        sbplan.*,
+        stu.`NAME`,
+        stu.`STUDENT_NO`,
+        dorm.`DORM_NAME`,
+        dorm.`AREA_NAME`,
+        dorm.`BUILDING_NAME`
+        FROM
+        `dormitory_stu_bed_plan` sbplan,
+        `sys_bed` bed,
+        `sys_dorm` dorm,
+        `student_info` stu
+        WHERE sbplan.`STU_ID` = stu.`ID`
+        AND sbplan.`BED_ID` = bed.`ID`
+        AND dorm.`ID` = bed.`DORM_ID`
+
+        <if test="param.partId != null and param.partId != ''">
+            and sbplan.PART_ID = #{param.partId,jdbcType=VARCHAR}
+        </if>
+    </select>
+</mapper>

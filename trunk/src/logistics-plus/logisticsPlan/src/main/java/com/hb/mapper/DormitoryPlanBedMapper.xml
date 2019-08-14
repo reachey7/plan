@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mapper.DormitoryPlanBedMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hb.entity.DormitoryPlanBed">
+        <id column="ID" property="id" />
+        <result column="PLAN_ID" property="planId" />
+        <result column="CREATE_DATE" property="createDate" />
+        <result column="STATE" property="state" />
+        <result column="OPERATOR_ID" property="operatorId" />
+        <result column="BED_ID" property="bedId" />
+    </resultMap>
+
+    <select id="selectPlanBed" resultType="java.util.Map"
+            parameterType="java.util.Map">
+        select
+        sb.`ID`,sb.`BED_NUMBER`,sb.`BED_STATUS`,sd.`DORM_CODE`,sd.`DORM_NAME`,sd.`DORM_STATUS`,sbuild.`BUILDING_NAME`
+        from
+        `dormitory_plan_bed` spb,
+        sys_bed sb,
+        sys_dorm sd,
+        sys_build sbuild
+        where sd.`ID` = sb.`DORM_ID`
+        and sb.`ID` = spb.`BED_ID`
+        and sbuild.`ID` = sd.`BUILDING_ID`
+
+        <if test="param.dormId != null and param.dormId != ''">
+            and spb.DORM_ID = #{param.dormId,jdbcType=VARCHAR}
+        </if>
+
+        <if test="param.bedStatus != null and param.bedStatus != ''">
+            and sb.BED_STATUS = #{param.bedStatus,jdbcType=VARCHAR}
+        </if>
+
+
+        <if test="param.planId != null and param.planId != ''">
+            and sb.`ID` in (select dps.`BED_ID` from `dormitory_plan_bed` dps where dps.`PLAN_ID`=
+            #{param.planId,jdbcType=VARCHAR} )
+        </if>
+
+    </select>
+
+</mapper>
