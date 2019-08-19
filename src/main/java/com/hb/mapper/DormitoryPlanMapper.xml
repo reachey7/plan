@@ -26,8 +26,7 @@
 
     <select id="selectDormitoryPlan" resultType="java.util.Map"
             parameterType="java.util.Map">
-        SELECT t.`VALUE2` ,p.* FROM `dormitory_plan` p,sys_cparam t WHERE p.`PLAN_STATUS`=t.`value1`
-
+          SELECT t.`VALUE2` ,p.* ,t.`VALUE2` as STU_TYPE_NAME FROM `dormitory_plan` p,sys_cparam t WHERE p.`STU_TYPE`=t.`value1`
         <if test="param.planStatus != null and param.planStatus != ''">
             and p.PLAN_STATUS = #{param.planStatus,jdbcType=VARCHAR}
         </if>
@@ -49,7 +48,7 @@
         </if>
 
         <if test="param.planName != null and param.planName != ''">
-            and p.PLAN_NAME = #{param.planName,jdbcType=VARCHAR}
+            and p.PLAN_NAME like  '%${param.planName}%'
         </if>
 
         <if test="param.planCode != null and param.planCode != ''">
@@ -59,5 +58,7 @@
         <if test="param.id != null and param.id != ''">
             and p.ID = #{param.id,jdbcType=VARCHAR}
         </if>
+        
+        ORDER BY  p.`ID`  
     </select>
 </mapper>

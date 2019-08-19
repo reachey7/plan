@@ -49,7 +49,9 @@ public class DormitoryPlanController {
     public R add(@RequestBody DormitoryPlan dormitoryPlan) {
         try {
             dormitoryPlan.setId(IdUtil.createSerialSS(""));
-            dormitoryPlan.setPlanStatus("TJZ");
+            dormitoryPlan.setPlanStatus("添加中");
+            dormitoryPlan.setPlanCode(dormitoryPlan.getId());
+            dormitoryPlan.setCreateTime(PlugDateUtil.getCurDateTime());
             boolean result = dormitoryPlanService.save(dormitoryPlan);
             if (!result) {
                 return new R(true, "新增失败", "");
@@ -66,13 +68,17 @@ public class DormitoryPlanController {
      */
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public R update(@RequestBody DormitoryPlan dormitoryPlan) {
+    public R update(@RequestBody Map<String, Object> paramMap) {
         try {
-            DormitoryPlan tmp = dormitoryPlanService.getById(dormitoryPlan.getId());
-            if (tmp == null) {
+            DormitoryPlan dormitoryPlan = dormitoryPlanService.getById((String)paramMap.get("id"));
+            if (dormitoryPlan == null) {
                 return new R(true, "根据ID查找数据并不存在", "");
             }
 
+            dormitoryPlan.setPlanName(paramMap.get("planName")+"");
+            dormitoryPlan.setDescription(paramMap.get("description")+"");
+            dormitoryPlan.setStuType(paramMap.get("stuType")+"");
+            
             Boolean result = dormitoryPlanService.updateById(dormitoryPlan);
             if (!result) {
                 return new R(true, "修改失败", "");
@@ -118,11 +124,10 @@ public class DormitoryPlanController {
 
             Page page = null;
             if (StringUtils.isEmpty(paramMap.get("current")) || StringUtils.isEmpty(paramMap.get("size"))) {
-                page = new Page(0, 1);
+                page = new Page(0, 10);
             } else {
-                page = new Page(Integer.parseInt(paramMap.get("size") + ""), Integer.parseInt(paramMap.get("size") + ""));
+                page = new Page(Integer.parseInt(paramMap.get("current") + ""), Integer.parseInt(paramMap.get("size") + ""));
             }
-
             Page listPage = dormitoryPlanService.selectDormitoryPlan(page, paramMap);
             return new R(true, "查询成功", listPage);
 
@@ -136,11 +141,10 @@ public class DormitoryPlanController {
      * 计划完成，调用微服务的工作流，接受工作流返回的信息并记录数据库
      * 参数包括
      * 计划ID：planId
-     * 当前操作人：currentPersonId和currentPersonName
      * 下一环节操作人：nextPersonId和nextPersonName
      * <p>
      * 方法流程：
-     * 1.首先判断计划ID，当前操作人，下一环节操作人是否传入
+     * 1.首先判断计划ID，下一环节操作人是否传入
      * 2.判断planId是否在数据库存在
      * 3.调用工作流微服务
      * 4.根据工作流返回的结果判断是否成功，如果成功则更新dormitory_plan表中的PLAN_STATUS，CURRENT_PERSON_ID，CURRENT_PERSON_NAME
@@ -157,7 +161,6 @@ public class DormitoryPlanController {
             //首先判断必填项
             List<String> list = new ArrayList<>();
             list.add("planId");
-            list.add("currentPersonId");
             list.add("nextPersonId");
 
             R checkR = SysHelperUtil.check(list, paramMap);
@@ -173,7 +176,7 @@ public class DormitoryPlanController {
 
             //调用微服务工作流
             JSONObject activityJb = new JSONObject();
-            activityJb.put("currentPersonId", (String) paramMap.get("currentPersonId"));
+            activityJb.put("currentPersonId", dormitory.getCreatePersonId());
             activityJb.put("planId", (String) paramMap.get("planId"));
             activityJb.put("nextPersonId", (String) paramMap.get("nextPersonId"));
 
