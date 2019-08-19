@@ -4,13 +4,15 @@ server:
 mybatis-plus:
  mapper-locations: classpath:com/hb/mapper/*Mapper.xml
  typeAliasesPackage: com.hb.entity
+ configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 spring:
   datasource:
-    url: jdbc:mysql://39.98.59.64:3306/logistics-plus?useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/logistics-plus?useUnicode=true&characterEncoding=UTF-8
     driver-class-name: com.mysql.jdbc.Driver
     username: root
-    password: hebang123456
+    password: 123456
   thymeleaf:
     mode: HTML
     encoding: utf-8
