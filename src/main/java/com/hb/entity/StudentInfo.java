@@ -11,61 +11,61 @@ import java.io.Serializable;
  * </p>
  *
  * @author lirc
- * @since 2019-08-09
+ * @since 2019-08-19
  */
 public class StudentInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-        /**
+    /**
      * ID
      */
-         @TableId("ID")
+    @TableId("ID")
     private String id;
 
-        /**
+    /**
      * 学号
      */
-         @TableField("STUDENT_NO")
+    @TableField("STUDENT_NO")
     private String studentNo;
 
     @TableField("NAME")
     private String name;
 
-        /**
+    /**
      * 女、男
      */
-         @TableField("SEX")
+    @TableField("SEX")
     private Integer sex;
 
-        /**
+    /**
      * 民族
      */
-         @TableField("NATION")
+    @TableField("NATION")
     private String nation;
 
-        /**
+    /**
      * 政治面貌：1党员、2团员、3其他
      */
-         @TableField("POLTICAL_STATUS")
+    @TableField("POLTICAL_STATUS")
     private Integer polticalStatus;
 
-        /**
+    /**
      * 婚姻情况：0否、1是
      */
-         @TableField("MARITAL_STATUS")
+    @TableField("MARITAL_STATUS")
     private Integer maritalStatus;
 
-        /**
+    /**
      * 出生日期
      */
-         @TableField("BIRTHDAY")
+    @TableField("BIRTHDAY")
     private LocalDate birthday;
 
-        /**
+    /**
      * 籍贯
      */
-         @TableField("POB")
+    @TableField("POB")
     private String pob;
 
     @TableField("ID_CARD")
@@ -74,79 +74,79 @@ public class StudentInfo implements Serializable {
     @TableField("PHONE")
     private String phone;
 
-        /**
+    /**
      * 头像照片
      */
-         @TableField("PHOTO_ID")
+    @TableField("PHOTO_ID")
     private String photoId;
 
-        /**
+    /**
      * 学院ID,college表
      */
-         @TableField("college_ID")
+    @TableField("college_ID")
     private String collegeId;
 
-        /**
+    /**
      * 专业ID，marjor表
      */
-         @TableField("MAJOR_ID")
+    @TableField("MAJOR_ID")
     private String majorId;
 
     @TableField("GRADE")
     private Integer grade;
 
-        /**
+    /**
      * 见参数表,STU_TYPE
      */
-         @TableField("DEGREE_TYPE")
+    @TableField("DEGREE_TYPE")
     private String degreeType;
 
-        /**
+    /**
      * 家庭地址
      */
-         @TableField("HOME_ADDRESS")
+    @TableField("HOME_ADDRESS")
     private String homeAddress;
 
-        /**
+    /**
      * 家庭电话
      */
-         @TableField("HOME_PHONE")
+    @TableField("HOME_PHONE")
     private String homePhone;
 
-        /**
+    /**
      * 是否入住：1是、0否
      */
-         @TableField("IS_CHECKIN")
+    @TableField("IS_CHECKIN")
     private Integer isCheckin;
 
-        /**
+    /**
      * 是否留学
      */
-         @TableField("STUDY_ABROAD")
+    @TableField("STUDY_ABROAD")
     private Integer studyAbroad;
 
-        /**
+    /**
      * 是否毕业：0否、1是
      */
-         @TableField("IS_GRADUATION")
+    @TableField("IS_GRADUATION")
     private Integer isGraduation;
 
-        /**
+    /**
      * 在校状态：1在校、2离校
      */
-         @TableField("SCHOOL_STATUS")
+    @TableField("SCHOOL_STATUS")
     private Integer schoolStatus;
 
-        /**
+    /**
      * 1.普通2.寝室长3.班长
      */
-         @TableField("TYPE")
+    @TableField("TYPE")
     private Integer type;
 
-        /**
+    /**
      * 区域ID
      */
-         @TableField("AREA_ID")
+    @TableField("AREA_ID")
     private String areaId;
 
     @TableField("AREA_NAME")
@@ -155,10 +155,10 @@ public class StudentInfo implements Serializable {
     @TableField("CAMPUS_NAME")
     private String campusName;
 
-        /**
+    /**
      * 校区ID
      */
-         @TableField("CAMPUS_ID")
+    @TableField("CAMPUS_ID")
     private String campusId;
 
     @TableField("GRADUATE_YEAR")

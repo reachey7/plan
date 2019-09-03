@@ -2,41 +2,66 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hb.mapper.DormitoryPlanStuMapper">
 
-    <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.hb.entity.DormitoryPlanStu">
-        <result column="ID" property="id" />
-        <result column="STUDENT_ID" property="studentId" />
-        <result column="PLAN_ID" property="planId" />
-        <result column="CREATE_DATE" property="createDate" />
-        <result column="STATE" property="state" />
-        <result column="OPERATOR_ID" property="operatorId" />
-    </resultMap>
-    <select id="selectPlanStudent" resultType="java.util.Map"
-            parameterType="java.util.Map">
-        select
-        i.*,c.`campus_name`,m.`name`
-        from
-        student_info i,sys_campus c,sys_major m
-        where
-        i.`CAMPUS_ID`=c.`id`
-        and i.`MAJOR_ID`=m.`id`
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.hb.entity.DormitoryPlanStu">
+		<result column="ID" property="id" />
+		<result column="STUDENT_ID" property="studentId" />
+		<result column="PLAN_ID" property="planId" />
+		<result column="CREATE_DATE" property="createDate" />
+		<result column="STATE" property="state" />
+		<result column="OPERATOR_ID" property="operatorId" />
+	</resultMap>
 
-        <if test="param.campusId != null and param.campusId != ''">
-            and p.CAMPUS_ID = #{param.campusId,jdbcType=VARCHAR}
-        </if>
 
-        <if test="param.majorId != null and param.majorId != ''">
-            and p.MAJOR_ID = #{param.majorId,jdbcType=VARCHAR}
-        </if>
 
-        <if test="param.sex != null and param.sex != ''">
-            and p.SEX = #{param.sex,jdbcType=VARCHAR}
-        </if>
+	<select id="selectStudent" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT
+		i.*,
+		c.`campus_name` CAMPUS_NAME,
+		m.`name` AS MAJOR_NAME,
+		cg.`name` AS COLLEGE_NAME,
+		CP.`VALUE2` AS STU_TYPE_NAME
+		FROM
+		student_info i,
+		sys_campus c,
+		sys_major m,
+		sys_college cg,
+		sys_cparam cp
+		WHERE i.`CAMPUS_ID` = c.`id`
+		AND i.`MAJOR_ID` = m.`id`
+		AND
+		i.`college_ID` = cg.`id`
+		AND i.STU_TYPE = cp.`VALUE1`
 
-        <if test="param.planId != null and param.planId != ''">
-            and i.`ID` in (select dps.`STUDENT_ID` from `dormitory_plan_stu` dps where dps.`PLAN_ID`=
-            #{param.planId,jdbcType=VARCHAR} )
-        </if>
+		<if test="param.campusName != null and param.campusName != ''">
+			and p.CAMPUS_ID like '%${param.campusName}%'
+		</if>
+		<if test="param.name != null and param.name != ''">
+			AND i.`NAME` LIKE '%${param.name}%'
+		</if>
+		<if test="param.studentNo != null and param.studentNo != ''">
+			AND I.`STUDENT_NO` =#{param.studentNo,jdbcType=VARCHAR}
+		</if>
+		<if test="param.stuSex != null and param.stuSex != ''">
+			AND I.`SEX` =#{param.stuSex,jdbcType=VARCHAR}
+		</if>
+		<if test="param.stuType!= null and param.stuType!= ''">
+			AND I.`STU_TYPE` =#{param.stuType,jdbcType=VARCHAR}
+		</if>
+		<if test="param.planId != null and param.planId != ''">
+			AND i.`ID` IN
+			(SELECT
+			planstu.`STUDENT_ID`
+			FROM
+			`dormitory_plan_stu` planstu
+			WHERE planstu.`PLAN_ID`=
+			#{param.planId,jdbcType=VARCHAR}
+			
+			and planstu.state='1')
+			
+		</if>
 
-    </select>
+
+	</select>
 </mapper>

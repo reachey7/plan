@@ -54,8 +54,8 @@ public class AutoCode {
 		dsc.setDbType(DbType.MYSQL);
 		dsc.setDriverName("com.mysql.jdbc.Driver");
 		dsc.setUsername("root");
-		dsc.setPassword("hebang123456");
-		dsc.setUrl("jdbc:mysql://39.98.59.64:3306/logistics-plus");
+		dsc.setPassword("123456");
+		dsc.setUrl("jdbc:mysql://localhost/logistics-plus");
 		mpg.setDataSource(dsc);
 
 		// 策略配置
@@ -63,7 +63,7 @@ public class AutoCode {
 		// strategy.setTablePrefix(new String[] { "hb_" });// 此处可以修改为您的表前缀
 
 		strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
-		strategy.setInclude(new String[] { "dormitory_stu_bed_plan" }); // 需要生成的表
+		strategy.setInclude(new String[] { "sys-bed" }); // 需要生成的表
 
 		strategy.setSuperServiceClass(null);
 		strategy.setSuperServiceImplClass(null);

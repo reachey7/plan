@@ -31,9 +31,9 @@ public class DormitoryPlanStuServiceImpl extends ServiceImpl<DormitoryPlanStuMap
     private static Logger log = LoggerFactory.getLogger(DormitoryPlanStuServiceImpl.class);
 
     @Override
-    public Page<Map> selectPlanStudent(Page page, Map<String, Object> param) {
+    public Page<Map> selectStudent(Page page, Map<String, Object> param) {
         List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-        resultList = dormitoryPlanStuMapper.selectPlanStudent(page, param);
+        resultList = dormitoryPlanStuMapper.selectStudent(page, param);
         page.setRecords(resultList);
         return page;
     }

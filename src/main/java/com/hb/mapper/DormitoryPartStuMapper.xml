@@ -2,35 +2,63 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hb.mapper.DormitoryPartStuMapper">
 
-    <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.hb.entity.DormitoryPartStu">
-        <id column="ID" property="id"/>
-        <result column="STUDENT_ID" property="studentId"/>
-        <result column="PART_ID" property="partId"/>
-        <result column="CREATE_DATE" property="createDate"/>
-        <result column="Operator_id" property="operatorId"/>
-        <result column="STATE" property="state"/>
-    </resultMap>
-    <select id="selectPartStu" resultType="java.util.Map"
-            parameterType="java.util.Map">
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.hb.entity.DormitoryPartStu">
+		<id column="ID" property="id" />
+		<result column="STUDENT_ID" property="studentId" />
+		<result column="PART_ID" property="partId" />
+		<result column="CREATE_DATE" property="createDate" />
+		<result column="Operator_id" property="operatorId" />
+		<result column="STATE" property="state" />
+	</resultMap>
+	<select id="selectPartStu" resultType="java.util.Map"
+		parameterType="java.util.Map">
 
-        SELECT
-        *
-        FROM
-        `dormitory_part_stu` dps,
-        student_info si
-        WHERE si.id = dps.`STUDENT_ID`
-        AND dps.`STUDENT_ID` IN
-        <if test="param.studentIdList != null and param.studentIdList != ''">
-            <foreach collection="list" item="studentId" index="index" open="(" close=")" separator=",">
-                #{studentId}
-            </foreach>
-        </if>
+		SELECT
+		si.*,
+		dps.PART_ID,
+		
+		sm.`COLLEGE_NAME`,
+		sc.name AS MAJOR_NAME,
+		cp.`VALUE2` AS STU_TYPE_NAME
+		FROM
+		`dormitory_part_stu` dps,
+		student_info si,
+		sys_college sc,
+		sys_major sm,
+		sys_cparam cp
+		WHERE si.id = dps.`STUDENT_ID`
+		AND sc.`id` = si.`college_ID`
+		AND sm.`id` = si.`MAJOR_ID`
+		AND cp.`VALUE1`=si.`STU_TYPE`
 
-        <if test="param.partId != null and param.partId != ''">
-            and pds.PART_ID = #{param.partId,jdbcType=VARCHAR}
-        </if>
-        ORDER BY #{param.fenpeiRule,jdbcType=VARCHAR}
 
-    </select>
+
+		<if test="param.studentIdList != null and param.studentIdList != ''">
+			AND dps.`STUDENT_ID` IN ${param.studentIdList}
+		</if>
+
+		<if test="param.partId != null and param.partId != ''">
+			and dps.PART_ID = #{param.partId,jdbcType=VARCHAR}
+		</if>
+
+		<if test="param.sex != null and param.sex != ''">
+			and si.sex = #{param.sex,jdbcType=VARCHAR}
+		</if>
+		<if test="param.stuType != null and param.stuType != ''">
+			and si.STU_TYPE = #{param.stuType,jdbcType=VARCHAR}
+		</if>
+			<if test="param.stuName != null and param.stuName != ''">
+			and si.NAME = #{param.stuName,jdbcType=VARCHAR}
+		</if>
+			<if test="param.stuId != null and param.stuId != ''">
+			and si.ID = #{param.stuId,jdbcType=VARCHAR}
+		</if>
+		
+		<if test="param.fenpeiRule != null and param.fenpeiRule != ''">
+			ORDER BY ${param.fenpeiRule}
+		</if>
+
+
+	</select>
 </mapper>

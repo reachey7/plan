@@ -17,5 +17,5 @@ import java.util.Map;
  * @since 2019-08-09
  */
 public interface DormitoryPlanStuMapper extends BaseMapper<DormitoryPlanStu> {
-    public List<Map<String, Object>> selectPlanStudent(Page page, @Param("param")Map<String,Object> param);
+    public List<Map<String, Object>> selectStudent(Page page, @Param("param")Map<String,Object> param);
 }
