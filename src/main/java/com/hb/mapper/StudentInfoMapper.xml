@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mapper.StudentInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hb.entity.StudentInfo">
+        <id column="ID" property="id" />
+        <result column="STUDENT_NO" property="studentNo" />
+        <result column="NAME" property="name" />
+        <result column="SEX" property="sex" />
+        <result column="NATION" property="nation" />
+        <result column="POLTICAL_STATUS" property="polticalStatus" />
+        <result column="MARITAL_STATUS" property="maritalStatus" />
+        <result column="BIRTHDAY" property="birthday" />
+        <result column="POB" property="pob" />
+        <result column="ID_CARD" property="idCard" />
+        <result column="PHONE" property="phone" />
+        <result column="PHOTO_ID" property="photoId" />
+        <result column="college_ID" property="collegeId" />
+        <result column="MAJOR_ID" property="majorId" />
+        <result column="GRADE" property="grade" />
+        <result column="DEGREE_TYPE" property="degreeType" />
+        <result column="HOME_ADDRESS" property="homeAddress" />
+        <result column="HOME_PHONE" property="homePhone" />
+        <result column="IS_CHECKIN" property="isCheckin" />
+        <result column="STUDY_ABROAD" property="studyAbroad" />
+        <result column="IS_GRADUATION" property="isGraduation" />
+        <result column="SCHOOL_STATUS" property="schoolStatus" />
+        <result column="TYPE" property="type" />
+        <result column="AREA_ID" property="areaId" />
+        <result column="AREA_NAME" property="areaName" />
+        <result column="CAMPUS_NAME" property="campusName" />
+        <result column="CAMPUS_ID" property="campusId" />
+        <result column="GRADUATE_YEAR" property="graduateYear" />
+    </resultMap>
+ <select id="selectStudentInfo" resultType="java.util.Map"
+            parameterType="java.util.Map">
+        SELECT
+        sbplan.*,
+        stu.`NAME`,
+        stu.`STUDENT_NO`,
+        dorm.`DORM_NAME`,
+        dorm.`AREA_NAME`,
+        dorm.`BUILDING_NAME`
+        FROM
+        `dormitory_stu_bed_plan` sbplan,
+        `sys_bed` bed,
+        `sys_dorm` dorm,
+        `student_info` stu
+        WHERE sbplan.`STU_ID` = stu.`ID`
+        AND sbplan.`BED_ID` = bed.`ID`
+        AND dorm.`ID` = bed.`DORM_ID`
+
+        <if test="param.partId != null and param.partId != ''">
+            and sbplan.PART_ID = #{param.partId,jdbcType=VARCHAR}
+        </if>
+    </select>
+</mapper>
