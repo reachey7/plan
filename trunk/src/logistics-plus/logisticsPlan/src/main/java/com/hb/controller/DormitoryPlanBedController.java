@@ -64,7 +64,6 @@ public R add(@RequestBody DormitoryPlanBed dormitoryPlanBed){
 
 
 
-
 	/**
 	 * 修改
 	 */
@@ -123,10 +122,10 @@ public R add(@RequestBody DormitoryPlanBed dormitoryPlanBed){
 				if (StringUtils.isEmpty(paramMap.get("current")) || StringUtils.isEmpty(paramMap.get("size"))) {
 					page = new Page(0, 1);
 				} else {
-					page = new Page(Integer.parseInt(paramMap.get("size") + ""), Integer.parseInt(paramMap.get("size") + ""));
+					page = new Page(Integer.parseInt(paramMap.get("current") + ""), Integer.parseInt(paramMap.get("size") + ""));
 				}
 				page = dormitoryPlanBedService.selectPlanBed(page,paramMap);
-				return new R(true, "查询成功", page.getRecords());
+				return new R(true, "查询成功", page);
 			} catch (Exception e) {
 				logger.error("dormitoryPlanBedService -=- {}", e.toString());
 				return new R(true, "查询失败", "");

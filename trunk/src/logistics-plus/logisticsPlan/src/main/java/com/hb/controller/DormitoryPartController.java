@@ -3,6 +3,7 @@ package com.hb.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hb.entity.DormitoryBedStu;
 import com.hb.service.IDormitoryPlanService;
+import com.hb.util.IdUtil;
 import com.hb.util.PlugDateUtil;
 import org.springframework.stereotype.Controller;
 
@@ -59,7 +60,10 @@ public class DormitoryPartController {
     @RequestMapping(method = RequestMethod.POST, value = "/add")
     public R add(@RequestBody DormitoryPart dormitoryPart) {
         try {
-            dormitoryPart.setPartStatus("0");
+        	dormitoryPart.setId(IdUtil.createSerialSS(""));
+            dormitoryPart.setPartStatus("NO");
+            dormitoryPart.setPartCode(dormitoryPart.getId());
+            dormitoryPart.setCreateTime(PlugDateUtil.getCurDateTime());
             boolean result = dormitoryPartService.save(dormitoryPart);
             if (!result) {
                 return new R(true, "新增失败", "");
@@ -130,7 +134,7 @@ public class DormitoryPartController {
             if (StringUtils.isEmpty(paramMap.get("current")) || StringUtils.isEmpty(paramMap.get("size"))) {
                 page = new Page(0, 1);
             } else {
-                page = new Page(Integer.parseInt(paramMap.get("size") + ""), Integer.parseInt(paramMap.get("size") + ""));
+                page = new Page(Integer.parseInt(paramMap.get("current") + ""), Integer.parseInt(paramMap.get("size") + ""));
             }
 
             Page listPage = dormitoryPartService.selectDormitoryPart(page, paramMap);
@@ -145,7 +149,6 @@ public class DormitoryPartController {
     /**
      * 划分完成，调用微服务的工作流，接受工作流返回的信息并记录数据库
      * 参数包括
-     * 工作流ID:activityId
      * 划分ID：partId
      * 计划ID：planId
      * 当前操作人：currentPersonId和currentPersonName
@@ -173,11 +176,11 @@ public class DormitoryPartController {
             List<String> list = new ArrayList<>();
             list.add("partId");
             list.add("planId");
-            list.add("activityId");
             list.add("currentPersonId");
             list.add("nextPersonId");
 
             R checkR = SysHelperUtil.check(list, paramMap);
+            
             if (!checkR.isState()) {
                 return checkR;
             }
@@ -195,7 +198,7 @@ public class DormitoryPartController {
             List<String> nextList = new ArrayList<String>();
             nextList.add((String) paramMap.get("nextPersonId"));
             activityJb.put("nextPersonId", nextList);
-            activityJb.put("processInstanceId", (String) paramMap.get("activityId"));
+            activityJb.put("processInstanceId", dormitory.getActivityId());
             activityJb.put("huafenType", "0");
 
             //判断当前计划下的划分是否有完成的划分

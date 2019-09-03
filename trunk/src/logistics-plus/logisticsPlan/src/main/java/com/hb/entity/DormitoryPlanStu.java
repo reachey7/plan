@@ -26,7 +26,7 @@ public class DormitoryPlanStu implements Serializable {
     private String planId;
 
     @TableField("CREATE_DATE")
-    private LocalDateTime createDate;
+    private String createDate;
 
     @TableField("STATE")
     private String state;
@@ -59,11 +59,11 @@ public class DormitoryPlanStu implements Serializable {
         this.planId = planId;
     }
 
-    public LocalDateTime getCreateDate() {
+    public String getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
+    public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }
 

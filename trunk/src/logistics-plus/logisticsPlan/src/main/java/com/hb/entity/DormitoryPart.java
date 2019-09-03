@@ -10,111 +10,119 @@ import java.io.Serializable;
  * </p>
  *
  * @author lirc
- * @since 2019-08-09
+ * @since 2019-08-22
  */
 public class DormitoryPart implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-        /**
+    /**
      * ID
      */
-         @TableId("ID")
+    @TableId("ID")
     private String id;
 
-        /**
+    /**
      * 划分编码
      */
-         @TableField("PART_CODE")
+    @TableField("PART_CODE")
     private String partCode;
 
-        /**
+    /**
      * 计划ID
      */
-         @TableField("PLAN_ID")
+    @TableField("PLAN_ID")
     private String planId;
 
-        /**
+    /**
      * 划分名称
      */
-         @TableField("PART_NAME")
+    @TableField("PART_NAME")
     private String partName;
 
-        /**
+    /**
      * 年级
      */
-         @TableField("GRADE")
+    @TableField("GRADE")
     private String grade;
 
-        /**
+    /**
      * 创建日期
      */
-         @TableField("CREATE_TIME")
+    @TableField("CREATE_TIME")
     private String createTime;
 
-        /**
+    /**
      * 创建人
      */
-         @TableField("CREATE_PERSON_ID")
+    @TableField("CREATE_PERSON_ID")
     private String createPersonId;
 
-        /**
+    /**
      * 分配人ID
      */
-         @TableField("CURRENT_PERSON_ID")
+    @TableField("CURRENT_PERSON_ID")
     private String currentPersonId;
 
-        /**
+    /**
      * 划分开始时间
      */
-         @TableField("PART_BEGIN")
+    @TableField("PART_BEGIN")
     private String partBegin;
 
-        /**
+    /**
      * 划分结束时间
      */
-         @TableField("PART_END")
+    @TableField("PART_END")
     private String partEnd;
 
-        /**
-     * 见参数表
+    /**
+     * 0未完成1已划分2已完成
      */
-         @TableField("PART_STATUS")
+    @TableField("PART_STATUS")
     private String partStatus;
 
-        /**
+    /**
      * 分配规则
      */
-         @TableField("PART_RULE")
+    @TableField("PART_RULE")
     private String partRule;
 
     @TableField("CURRENT_PERSON")
     private String currentPerson;
 
-        /**
+    /**
      * 学生数量
      */
-         @TableField("STUDENT_NUMBER")
+    @TableField("STUDENT_NUMBER")
     private Integer studentNumber;
 
-        /**
+    /**
      * 床位数量
      */
-         @TableField("BED_NUMBER")
+    @TableField("BED_NUMBER")
     private Integer bedNumber;
 
-        /**
+    /**
      * 描述
      */
-         @TableField("REMARK")
+    @TableField("REMARK")
     private String remark;
 
-
     /**
-     * TASK_ID
+     * 工作流中的taskId
      */
     @TableField("TASK_ID")
     private String taskId;
+
+    /**
+     * 是否支持自选0不支持1支持
+     */
+    @TableField("IF_AUTO")
+    private String ifAuto;
+
+    @TableField("CURRENT_PERSON_NAME")
+    private String currentPersonName;
 
 
     public String getId() {
@@ -253,6 +261,22 @@ public class DormitoryPart implements Serializable {
         this.taskId = taskId;
     }
 
+    public String getIfAuto() {
+        return ifAuto;
+    }
+
+    public void setIfAuto(String ifAuto) {
+        this.ifAuto = ifAuto;
+    }
+
+    public String getCurrentPersonName() {
+        return currentPersonName;
+    }
+
+    public void setCurrentPersonName(String currentPersonName) {
+        this.currentPersonName = currentPersonName;
+    }
+
     @Override
     public String toString() {
         return "DormitoryPart{" +
@@ -272,6 +296,9 @@ public class DormitoryPart implements Serializable {
         ", studentNumber=" + studentNumber +
         ", bedNumber=" + bedNumber +
         ", remark=" + remark +
+        ", taskId=" + taskId +
+        ", ifAuto=" + ifAuto +
+        ", currentPersonName=" + currentPersonName +
         "}";
     }
 }

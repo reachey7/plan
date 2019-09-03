@@ -39,7 +39,7 @@ public class DormitoryPartStu implements Serializable {
      * 创建时间
      */
     @TableField("CREATE_DATE")
-    private LocalDateTime createDate;
+    private String createDate;
 
     /**
      * 操作人
@@ -78,11 +78,11 @@ public class DormitoryPartStu implements Serializable {
         this.partId = partId;
     }
 
-    public LocalDateTime getCreateDate() {
+    public String getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
+    public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }
 

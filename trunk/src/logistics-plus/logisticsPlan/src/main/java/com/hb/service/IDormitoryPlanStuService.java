@@ -15,6 +15,6 @@ import java.util.Map;
  * @since 2019-08-09
  */
 public interface IDormitoryPlanStuService extends IService<DormitoryPlanStu> {
-    public Page<Map> selectPlanStudent(Page page, Map<String,Object> param);
+    public Page<Map> selectStudent(Page page, Map<String,Object> param);
 
 }
