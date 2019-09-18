@@ -17,9 +17,6 @@
 
 	<select id="selectBedStu" resultType="java.util.Map"
 		parameterType="java.util.Map">
-
-
-
 		SELECT
 		dorm.*,
 		bed.`BED_CODE`,
@@ -28,7 +25,8 @@
 		stu.`NATION`,
 		stu.`ID` AS STU_ID,
 		coll.`name` AS COLLEGE_NAME,
-		major.`name` AS MAJOR_NAME
+		major.`name` AS
+		MAJOR_NAME
 		FROM
 		dormitory_bed_stu t,
 		student_info stu,
@@ -36,10 +34,12 @@
 		sys_dorm dorm,
 		sys_major major,
 		sys_college coll
-		WHERE t.`BED_ID` = bed.`ID`
+		WHERE t.`BED_ID` =
+		bed.`ID`
 		AND t.`STUDENT_ID` = stu.`ID`
 		AND dorm.`ID`=bed.`DORM_ID`
-		AND major.`id`=stu.`MAJOR_ID`
+		AND
+		major.`id`=stu.`MAJOR_ID`
 		AND coll.id=stu.`college_ID`
 
 		<if test="param.stuId != null and param.stuId != ''">
@@ -50,15 +50,9 @@
 			AND stu.`STUDENT_NO` =#{param.stuNo,jdbcType=VARCHAR}
 		</if>
 
-
 		<if test="param.stuName != null and param.stuName != ''">
 			AND stu.`NAME` LIKE '%${param.stuName}%'
 		</if>
-
-
-
-
-
 	</select>
 
 </mapper>

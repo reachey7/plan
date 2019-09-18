@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mapper.DormitoryDormStuChangeMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.hb.entity.DormitoryDormStuChange">
+		<id column="ID" property="id" />
+		<result column="STUDENT_ID" property="studentId" />
+		<result column="BEFORE_BED_ID" property="beforeBedId" />
+		<result column="AFTER_BED_ID" property="afterBedId" />
+		<result column="CREATE_DATE" property="createDate" />
+		<result column="OPERATOR" property="operator" />
+		<result column="TYPE" property="type" />
+		<result column="STATE" property="state" />
+		<result column="UPDATE_REASON_CODE" property="updateReasonCode" />
+		<result column="CURRENT_OPERATOR" property="currentOperator" />
+		<result column="APPROVAL_REASON" property="approvalReason" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+
+	<select id="selectStuChange" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT
+		beforedorm.`DORM_NAME` AS BEFORE_DORM_NAME,
+		beforedorm.`BUILDING_NAME` AS BEFORE_BUILDING_NAME,
+		beforedorm.`FLOOR` AS BEFORE_FLOOR,
+		afterdorm.`DORM_NAME` AS AFTER_DORM_NAME,
+		afterdorm.`BUILDING_NAME` AS AFTER_BUILDING_NAME,
+		afterdorm.`FLOOR` AS AFTER_FLOOR,
+		stu.`STUDENT_NO`,
+		stu.`NAME`,
+		stu.`NATION`,
+		stu.`ID` AS STU_ID,
+		coll.`name` AS COLLEGE_NAME,
+		major.`name` AS MAJOR_NAME
+		FROM
+		dormitory_dorm_stu_change t,
+		student_info stu,
+		sys_major major,
+		sys_college coll,
+		sys_dorm beforedorm,
+		sys_dorm afterdorm
+		WHERE t.`STUDENT_ID` = stu.`ID`
+		AND major.`id` = stu.`MAJOR_ID`
+		AND coll.`id` = stu.`college_ID`
+		AND beforedorm.`ID` = t.`BEFORE_DORM_ID`
+		AND afterdorm.`ID` = t.`AFTER_DORM_ID`
+
+
+		<if test="param.stuId != null and param.stuId != ''">
+			AND stu.`ID`=#{param.stuId,jdbcType=VARCHAR}
+		</if>
+
+		<if test="param.stuNo != null and param.stuNo != ''">
+			AND stu.`STUDENT_NO` =#{param.stuNo,jdbcType=VARCHAR}
+		</if>
+
+		<if test="param.stuName != null and param.stuName != ''">
+			AND stu.`NAME` LIKE '%${param.stuName}%'
+		</if>
+	</select>
+
+</mapper>

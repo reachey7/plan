@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.hb.service.IDormitoryBedStuService;
+import com.hb.service.IDormitoryDormStuChangeService;
 import com.hb.util.IdUtil;
 import com.hb.util.PlugDateUtil;
 import com.hb.util.SysHelperUtil;
-import com.hb.entity.DormitoryBedStu;
+import com.hb.entity.DormitoryDormStuChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.hb.entity.R;
@@ -32,26 +32,37 @@ import java.util.Map;
 /**
  *
  * @author lirc
- * @since 2019-08-12
+ * @since 2019-09-18
  */
 @Controller
-@RequestMapping("/dormitoryBedStu")
-public class DormitoryBedStuController {
-	private final Logger logger = LoggerFactory.getLogger(DormitoryBedStuController.class);
+@RequestMapping("/dormitoryDormStuChange")
+public class DormitoryDormStuChangeController {
+	private final Logger logger = LoggerFactory.getLogger(DormitoryDormStuChangeController.class);
 
 	@Autowired
-	public IDormitoryBedStuService dormitoryBedStuService;
+	public IDormitoryDormStuChangeService dormitoryDormStuChangeService;
 
 	/**
-	* <p>新生入住安排(单个学生办理入住)
-	* 1.bed_stu插入数据
-	* 2.sys_bed表中的BED_STATUS改1，已入住
-	* 3.sys_stu表中的IS_CHECKIN改1，是
-	* 参数：stuId,bedId,operatorPersonId,operatorPersonName
+	* <p>学生办理入住:
+	* 1.dorm_stu_change表中插入数据
+	* 2.将原来的床位释放，sys_bed表中的BED_STATUS改为0，空闲
+	* 3.将新床位改为1，已入住
+	* 
+	* 参数为：
+	* 1.学生ID：stu_id，必填
+	* 2.老床位ID：beforeBedId,必填
+	* 3.新床位ID：afterBedId，必填
+	* 2.老宿舍ID：beforeDormId,必填
+	* 3.新宿舍ID：afterDormId，必填
+	* 4.操作人ID：operatorPersonId，必填
+	* 5.操作人姓名：operatorPersonName，必填
+	* 6.调换原因编码：updateReasonCode，参数表中定义，必填
+	* 7.调换原因名称：updateReasonName，参数表中定义，必填
+	* 8.备注：remark，非必填
 	* </p>
 	* <p>Company: 和邦科技</p> 
 	* @author lirc
-	* @date 下午1:45:29
+	* @date 上午10:15:33
 	*/
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/add")
@@ -60,18 +71,25 @@ public class DormitoryBedStuController {
 			// 首先判断必填项
 			List<String> list = new ArrayList<>();
 			list.add("stuId");
-			list.add("bedId");
+			list.add("afterBedId");
+			list.add("beforeBedId");
+			list.add("afterDormId");
+			list.add("beforeDormId");
 			list.add("operatorPersonId");
 			list.add("operatorPersonName");
+			list.add("updateReasonCode");
+			list.add("updateReasonName");
+			
 			R checkR = SysHelperUtil.check(list, paramMap);
 			if (!checkR.isState()) {
 				return checkR;
 			}
 
-			R result = dormitoryBedStuService.saveBedStu(paramMap);
+			R result = dormitoryDormStuChangeService.saveStuChange(paramMap);
 			return result;
+			
 		} catch (Exception e) {
-			logger.error("dormitoryBedStuSave -=- {}", e.toString());
+			logger.error("dormitoryDormStuChangeSave -=- {}", e.toString());
 			return new R(true, "新增失败", "");
 		}
 	}
@@ -81,20 +99,20 @@ public class DormitoryBedStuController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/update")
-	public R update(@RequestBody DormitoryBedStu dormitoryBedStu) {
+	public R update(@RequestBody DormitoryDormStuChange dormitoryDormStuChange) {
 		try {
-			DormitoryBedStu tmp = dormitoryBedStuService.getById(dormitoryBedStu.getId());
+			DormitoryDormStuChange tmp = dormitoryDormStuChangeService.getById(dormitoryDormStuChange.getId());
 			if (tmp == null) {
 				return new R(true, "根据ID查找数据并不存在", "");
 			}
 
-			Boolean result = dormitoryBedStuService.updateById(dormitoryBedStu);
+			Boolean result = dormitoryDormStuChangeService.updateById(dormitoryDormStuChange);
 			if (!result) {
 				return new R(true, "修改失败", "");
 			}
-			return new R(true, "修改成功", dormitoryBedStu);
+			return new R(true, "修改成功", dormitoryDormStuChange);
 		} catch (Exception e) {
-			logger.error("DormitoryBedStuUpdate -=- {}", e.toString());
+			logger.error("DormitoryDormStuChangeUpdate -=- {}", e.toString());
 			return new R(true, "修改失败", "");
 		}
 
@@ -105,34 +123,35 @@ public class DormitoryBedStuController {
 		 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/delete")
-	public R delete(@RequestBody DormitoryBedStu dormitoryBedStu) {
+	public R delete(@RequestBody DormitoryDormStuChange dormitoryDormStuChange) {
 		try {
-			DormitoryBedStu tmp = dormitoryBedStuService.getById(dormitoryBedStu.getId());
+			DormitoryDormStuChange tmp = dormitoryDormStuChangeService.getById(dormitoryDormStuChange.getId());
 			if (tmp == null) {
 				return new R(true, "根据ID查找数据并不存在", "");
 			}
 
-			Boolean result = dormitoryBedStuService.removeById(dormitoryBedStu.getId());
+			Boolean result = dormitoryDormStuChangeService.removeById(dormitoryDormStuChange.getId());
 			if (!result) {
 				return new R(true, "删除失败", "");
 			}
-			return new R(true, "删除成功", dormitoryBedStu);
+			return new R(true, "删除成功", dormitoryDormStuChange);
 		} catch (Exception e) {
-			logger.error("dormitoryBedStuDelete -=- {}", e.toString());
+			logger.error("dormitoryDormStuChangeDelete -=- {}", e.toString());
 			return new R(true, "删除失败", "");
 		}
 	}
 
 	
 	/**
-	* <p>查询学生入住床位情况
-	* 1.学生ID：stuId
+	* <p>寝室记录调换查询
+	* 参数：
+	*  1.学生ID：stuId
 	* 2.学生学号：stuNo
 	* 3.学生姓名：stuName
 	* </p>
 	* <p>Company: 和邦科技</p> 
 	* @author lirc
-	* @date 下午5:00:27
+	* @date 上午11:16:52
 	*/
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/query")
@@ -152,9 +171,8 @@ public class DormitoryBedStuController {
 			} else {
 				page = new Page(Integer.parseInt(paramMap.get("current") + ""), Integer.parseInt(paramMap.get("size") + ""));
 			}
-			page = dormitoryBedStuService.selectBedStu(page, paramMap);
+			page = dormitoryDormStuChangeService.selectStuChange(page, paramMap);
 			return new R(true, "查询成功", page);
-
 		} catch (Exception e) {
 			logger.error("sysAreaDelete -=- {}", e.toString());
 			return new R(true, "查询失败", "");
