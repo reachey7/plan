@@ -22,6 +22,7 @@
         stu.`STUDENT_NO`,
         dorm.`DORM_NAME`,
         dorm.`AREA_NAME`,
+        dorm.`FLOOR`,
         dorm.`BUILDING_NAME`
         FROM
         `dormitory_stu_bed_plan` sbplan,

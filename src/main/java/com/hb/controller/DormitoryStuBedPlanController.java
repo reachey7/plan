@@ -26,6 +26,8 @@ import com.hb.entity.DormitoryPartStu;
 import com.hb.entity.DormitoryPlan;
 import com.hb.entity.DormitoryStuBedPlan;
 import com.hb.entity.R;
+import com.hb.entity.SysBed;
+import com.hb.mapper.SysBedMapper;
 import com.hb.service.IDormitoryPartBedService;
 import com.hb.service.IDormitoryPartService;
 import com.hb.service.IDormitoryPartStuService;
@@ -33,6 +35,7 @@ import com.hb.service.IDormitoryPlanBedService;
 import com.hb.service.IDormitoryPlanService;
 import com.hb.service.IDormitoryPlanStuService;
 import com.hb.service.IDormitoryStuBedPlanService;
+import com.hb.service.ISysBedService;
 import com.hb.util.IdUtil;
 import com.hb.util.PlugDateUtil;
 import com.hb.util.SysHelperUtil;
@@ -60,6 +63,10 @@ public class DormitoryStuBedPlanController {
 	public IDormitoryPlanService dormitoryPlanService;
 	@Autowired
 	public IDormitoryPartService dormitoryPartService;
+	@Autowired
+	public ISysBedService sysBedService;
+	@Autowired
+	public SysBedMapper sysBedMapper;
 	@Autowired
 	private RestTemplate restTemplate;
 	/*
@@ -165,14 +172,9 @@ public class DormitoryStuBedPlanController {
 
 			// 将学生列表和床位列表匹配，并插入数据库中
 			List<DormitoryStuBedPlan> stuBedPlanList = new ArrayList();
-			List<DormitoryPartStu> partStuList = new ArrayList();
-			List<DormitoryPartBed> partBedList = new ArrayList();
 
 			for (int i = 0; i < partStuPage.getRecords().size(); i++) {
 				DormitoryStuBedPlan dsbp = new DormitoryStuBedPlan();
-				DormitoryPartStu partstu = new DormitoryPartStu();
-				DormitoryPartBed partbed = new DormitoryPartBed();
-
 				dsbp.setId(IdUtil.createSerialSS(""));
 				dsbp.setBedId((String) ((Map<String, Object>) partBedPage.getRecords().get(i)).get("BED_ID"));
 				dsbp.setCreateDate(PlugDateUtil.getCurDateTimeHS());
@@ -181,11 +183,11 @@ public class DormitoryStuBedPlanController {
 				dsbp.setPlanId((String) paramMap.get("planId"));
 				dsbp.setStuId((String) ((Map<String, Object>) partStuPage.getRecords().get(i)).get("ID"));
 				dsbp.setType(paramMap.get("type") + "");
-
+				dsbp.setState("0");
 				stuBedPlanList.add(dsbp);
 			}
 			// 批量插入数据库中
-			Boolean result = dormitoryStuBedPlanService.saveBatch(stuBedPlanList);
+			Boolean result = dormitoryStuBedPlanService.saveOrUpdateBatch(stuBedPlanList);
 
 			if (result) {
 
@@ -198,7 +200,7 @@ public class DormitoryStuBedPlanController {
 				for (DormitoryPartStu tmp : partStuListUpdate) {
 					tmp.setState("1");
 				}
-				dormitoryPartStuService.saveBatch(partStuListUpdate);
+				dormitoryPartStuService.saveOrUpdateBatch(partStuListUpdate);
 
 				// 查出该划分下面多少个床位
 				QueryWrapper<DormitoryPartBed> partBedWrapper = new QueryWrapper<>();
@@ -208,7 +210,7 @@ public class DormitoryStuBedPlanController {
 				for (DormitoryPartBed tmp : partBedListUpdate) {
 					tmp.setState("1");
 				}
-				dormitoryPartBedService.saveBatch(partBedListUpdate);
+				dormitoryPartBedService.saveOrUpdateBatch(partBedListUpdate);
 
 				// 判断该划分下是否还有学生未分床位，如果学生已经完成分配则直接调用划分结束工作流，并释放未分配的床位状态
 				partStuWrapper = new QueryWrapper<>();
@@ -216,20 +218,47 @@ public class DormitoryStuBedPlanController {
 				partStuWrapper.in("STATE", "0");
 				Integer count = dormitoryPartStuService.list(partStuWrapper).size();
 				if (count <= 0) {
+					DormitoryPart part = dormitoryPartService.getById(paramMap.get("partId") + "");
+					DormitoryPlan plan = dormitoryPlanService.getById(part.getPlanId());
+
 					// 调用工作流
-					R activityR = innerAssignSubmit(planBedParamMap);
-					//将未分配的床位进行释放
-					//查询该划分下状态为0的床位,并将状态改为2:未处理。同时将sys_bed表中状态改为已占用
+					Map<String, Object> activityMap = new HashMap<String, Object>();
+					activityMap.put("partId", paramMap.get("partId") + "");
+					activityMap.put("planId", paramMap.get("planId") + "");
+					activityMap.put("currentPersonId", paramMap.get("operatorPerson") + "");
+					activityMap.put("taskId", part.getTaskId());
+					activityMap.put("activityId", plan.getActivityId());
+
+					R activityR = innerAssignSubmit(activityMap);
+					if (!activityR.isState()) {
+						return activityR;
+					}
+					// 将未分配的床位进行释放
+					// 查询该划分下状态为0的床位,并将状态改为2:未处理。同时将sys_bed表中状态改为已占用
 					partBedWrapper = new QueryWrapper<>();
-					partBedWrapper.eq("STATUS", "0");
+					partBedWrapper.eq("STATE", "0");
 					partBedWrapper.eq("PART_ID", paramMap.get("partId") + "");
 					partBedListUpdate = dormitoryPartBedService.list(partBedWrapper);
+					List<String> bedUpdateList = new ArrayList<String>();
 					for (DormitoryPartBed tmp : partBedListUpdate) {
 						tmp.setState("2");
+						bedUpdateList.add(tmp.getBedId());
 					}
-					dormitoryPartBedService.saveBatch(partBedListUpdate);
-					
-					return activityR;
+					dormitoryPartBedService.saveOrUpdateBatch(partBedListUpdate);
+
+					// 更新sys_bed表中的状态
+					QueryWrapper<SysBed> sysBedWrapper = new QueryWrapper<>();
+					sysBedWrapper.eq("BED_CODE", bedUpdateList);
+					List<SysBed> sysBedList = sysBedMapper.selectList(sysBedWrapper);
+					for (SysBed tmp : sysBedList) {
+						tmp.setBedStatus(1);
+					}
+					Boolean resultSysBed = sysBedService.saveOrUpdateBatch(sysBedList);
+					if (resultSysBed) {
+						return new R(true, "操作成功", "");
+					} else {
+						return new R(false, "操作失败", "");
+					}
 				}
 
 				return new R(true, "操作成功", "");
@@ -238,6 +267,95 @@ public class DormitoryStuBedPlanController {
 			}
 
 		} catch (Exception e) {
+			logger.error("dormitoryStuBedPlanSave -=- {}", e.toString());
+			return new R(true, "新增失败", "");
+		}
+	}
+
+	/**为H5页面提供学生自选床位，查询空闲床位的接口
+	 * 参数：stuId
+	* <p>Description: </p>
+	* <p>Company: 和邦科技</p> 
+	* @author lirc
+	* @date 上午11:04:56
+	*/
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST, value = "/queryBedForPc")
+	public R queryBedForPc(@RequestBody Map paramMap) {
+		try {
+			Page page = null;
+			if (StringUtils.isEmpty(paramMap.get("current")) || StringUtils.isEmpty(paramMap.get("size"))) {
+				page = new Page(0, 1);
+			} else {
+				page = new Page(Integer.parseInt(paramMap.get("current") + ""), Integer.parseInt(paramMap.get("size") + ""));
+			}
+			page = dormitoryPartBedService.selectPartBedByStu(page, paramMap);
+			return new R(true, "操作成功", page);
+
+		} catch (Exception e) {
+			logger.error("dormitoryStuBedPlanSave -=- {}", e.toString());
+			return new R(true, "新增失败", "");
+		}
+	}
+
+	/**为H5页面提供学生自选床位的接口
+	 * 参数partId，studentId,bedId
+	* <p>Description: </p>
+	* <p>Company: 和邦科技</p> 
+	* @author lirc
+	* @date 上午11:05:48
+	*/
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST, value = "/addForPc")
+	public R addForPc(@RequestBody Map paramMap) {
+		try {
+			// 首先判断必填项
+			List<String> list = new ArrayList<>();
+			list.add("partId");
+			list.add("studentId");
+			list.add("bedId");
+
+			R checkR = SysHelperUtil.check(list, paramMap);
+			if (!checkR.isState()) {
+				return checkR;
+			}
+
+			// 校验partId是否存在
+			DormitoryPart dpart = dormitoryPartService.getById((String) paramMap.get("partId") + "");
+			if (dpart == null) {
+				return new R(false, "根据partId没找到对应part数据", "");
+			}
+
+			// 将学生列表和床位列表匹配，并插入数据库中
+
+			DormitoryStuBedPlan dsbp = new DormitoryStuBedPlan();
+			dsbp.setId(IdUtil.createSerialSS(""));
+			dsbp.setBedId(paramMap.get("bedId") + "");
+			dsbp.setCreateDate(PlugDateUtil.getCurDateTimeHS());
+			dsbp.setOperatorPerson("stuAuto");
+			dsbp.setPartId(paramMap.get("partId") + "");
+			dsbp.setPlanId(paramMap.get("planId") + "");
+			dsbp.setStuId(paramMap.get("studentId") + "");
+			dsbp.setState("0");
+			dsbp.setType("1");
+			Boolean result = dormitoryStuBedPlanService.save(dsbp);
+			if (result) {
+				// 更新dormitory_part:PART_STATUS,STUDENT_NUMBER,BED_NUMBER
+				QueryWrapper<DormitoryPartStu> partStuWrapper = new QueryWrapper<>();
+				partStuWrapper.eq("PART_ID", paramMap.get("partId") + "");
+				partStuWrapper.eq("STUDENT_ID", paramMap.get("studentId") + "");
+				DormitoryPartStu partStuUpdate = dormitoryPartStuService.getOne(partStuWrapper);
+				partStuUpdate.setState("1");
+				Boolean partStuUpdateResult = dormitoryPartStuService.saveOrUpdate(partStuUpdate);
+				if (!partStuUpdateResult) {
+					return new R(false, "更新part_stu状态失败", "");
+				}
+			}
+			return new R(true, "操作成功", "");
+
+		} catch (
+
+		Exception e) {
 			logger.error("dormitoryStuBedPlanSave -=- {}", e.toString());
 			return new R(true, "新增失败", "");
 		}
@@ -302,10 +420,10 @@ public class DormitoryStuBedPlanController {
 				if (StringUtils.isEmpty(paramMap.get("current")) || StringUtils.isEmpty(paramMap.get("size"))) {
 					page = new Page(0, 1);
 				} else {
-					page = new Page(Integer.parseInt(paramMap.get("size") + ""), Integer.parseInt(paramMap.get("size") + ""));
+					page = new Page(Integer.parseInt(paramMap.get("current") + ""), Integer.parseInt(paramMap.get("size") + ""));
 				}
 				page = dormitoryStuBedPlanService.selectStuBedPlan(page, paramMap);
-				return new R(true, "查询成功", page.getRecords());
+				return new R(true, "查询成功", page);
 			} catch (Exception e) {
 				logger.error("dormitoryPlanStudentService -=- {}", e.toString());
 				return new R(true, "查询失败", "");

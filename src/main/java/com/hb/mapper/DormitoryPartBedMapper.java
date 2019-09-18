@@ -17,6 +17,9 @@ import java.util.Map;
  * @since 2019-08-12
  */
 public interface DormitoryPartBedMapper extends BaseMapper<DormitoryPartBed> {
-    public List<Map<String, Object>> selectPartBed(Page page, @Param("param")Map<String,Object> param);
 
+	public List<Map<String, Object>> selectPartBed(Page page, @Param("param")Map<String,Object> param);
+
+	public List<Map<String, Object>> selectPartBedByStu(Page page,  @Param("param")Map<String,Object> param);
+	
 }

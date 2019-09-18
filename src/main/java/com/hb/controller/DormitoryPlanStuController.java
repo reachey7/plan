@@ -2,6 +2,7 @@ package com.hb.controller;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,14 +19,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hb.entity.DormitoryPlan;
 import com.hb.entity.DormitoryPlanBed;
 import com.hb.entity.DormitoryPlanStu;
 import com.hb.entity.R;
+import com.hb.entity.StudentInfo;
 import com.hb.mapper.DormitoryPlanBedMapper;
 import com.hb.mapper.DormitoryPlanStuMapper;
+import com.hb.mapper.StudentInfoMapper;
 import com.hb.service.IDormitoryPartService;
 import com.hb.service.IDormitoryPlanService;
 import com.hb.service.IDormitoryPlanStuService;
@@ -54,6 +58,8 @@ public class DormitoryPlanStuController {
     public DormitoryPlanStuMapper dormitoryPlanStuMapper;
     @Autowired
     public DormitoryPlanBedMapper dormitoryPlanBedMapper;
+    @Autowired
+    public StudentInfoMapper studentInfoMapper;
     
     @Autowired
     private RestTemplate restTemplate;
@@ -62,29 +68,35 @@ public class DormitoryPlanStuController {
      */
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/add")
-    public R add(@RequestBody DormitoryPlanStu dormitoryPlanStu) {
+    public R add(@RequestBody Map<String, Object> paramMap) {
         try {
-        	//添加之前先校验之前是否添加过
-        	QueryWrapper<DormitoryPlanStu> queryStuWrapper =  new QueryWrapper<>();
-            queryStuWrapper.eq("STUDENT_ID", dormitoryPlanStu.getStudentId());
-            queryStuWrapper.eq("PLAN_ID", dormitoryPlanStu.getPlanId());
-            List<DormitoryPlanStu> queryStuWrapperList = dormitoryPlanStuMapper.selectList(queryStuWrapper);
-        	if(queryStuWrapperList!=null && queryStuWrapperList.size()>0){
-        		return new R(true, "添加成功", "");
+        	List<String> stuIdList = (List<String>)paramMap.get("stuIdList");
+        	for(String str : stuIdList){
+        		DormitoryPlanStu dormitoryPlanStu = new DormitoryPlanStu();
+            	dormitoryPlanStu.setCreateDate(PlugDateUtil.getCurDateTime());
+            	dormitoryPlanStu.setState("1");
+            	dormitoryPlanStu.setId(IdUtil.createSerialSS(""));
+            	dormitoryPlanStu.setStudentId(str);
+            	dormitoryPlanStu.setPlanId((String)paramMap.get("planId"));
+            	dormitoryPlanStu.setOperatorId((String)paramMap.get("operatorId"));
+            	
+                boolean result = dormitoryPlanStuService.save(dormitoryPlanStu);
+                
+                if (!result) {
+                    return new R(false, "新增失败", "");
+                }
+                //将学生的状态更新为2已预占
+                StudentInfo studentInfo = studentInfoMapper.selectById(str);
+                studentInfo.setIsCheckin(2);
+                studentInfoMapper.updateById(studentInfo);
+                
+                
         	}
-            
-        	dormitoryPlanStu.setCreateDate(PlugDateUtil.getCurDateTime());
-        	dormitoryPlanStu.setState("1");
-        	dormitoryPlanStu.setId(IdUtil.createSerialSS(""));
-            boolean result = dormitoryPlanStuService.save(dormitoryPlanStu);
-            if (!result) {
-                return new R(false, "新增失败", "");
-            }
         } catch (Exception e) {
             logger.error("dormitoryPlanStuSave -=- {}", e.toString());
             return new R(true, "新增失败", "");
         }
-        return new R(true, "新增成功", dormitoryPlanStu);
+        return new R(true, "新增成功", null);
     }
     /**
      * 新增,将
@@ -212,6 +224,11 @@ public class DormitoryPlanStuController {
             if (!result) {
                 return new R(true, "删除失败", "");
             }
+            
+            StudentInfo studentInfo = studentInfoMapper.selectById(tmp.getStudentId());
+            studentInfo.setIsCheckin(0);
+            studentInfoMapper.updateById(studentInfo);
+            
             return new R(true, "删除成功", dormitoryPlanStu);
         } catch (Exception e) {
             logger.error("dormitoryPlanStuDelete -=- {}", e.toString());
@@ -245,6 +262,11 @@ public class DormitoryPlanStuController {
             if (!result) {
                 return new R(false, "删除失败", "");
             }
+            
+            StudentInfo studentInfo = studentInfoMapper.selectById((String)paramMap.get("stuId"));
+            studentInfo.setIsCheckin(0);
+            studentInfoMapper.updateById(studentInfo);
+            
             return new R(true, "删除成功", "");
         } catch (Exception e) {
             logger.error("dormitoryPlanStuDelete -=- {}", e.toString());
@@ -336,7 +358,6 @@ public class DormitoryPlanStuController {
     @RequestMapping(method = RequestMethod.POST, value = "/studentSubmit")
     public R studentSubmit(@RequestBody Map<String, Object> paramMap) {
         try {
-
             //首先判断必填项
             List<String> list = new ArrayList<>();
             list.add("planId");
@@ -353,6 +374,7 @@ public class DormitoryPlanStuController {
                 return new R(false, "根据planId未找到计划数据", "");
             }
 
+         
             //调用微服务工作流
             JSONObject activityJb = new JSONObject();
             activityJb.put("processInstanceId", dormitory.getActivityId());
@@ -370,11 +392,21 @@ public class DormitoryPlanStuController {
             dormitory.setCurrentPersonId((String) paramMap.get("nextPersonId"));
             dormitory.setCurrentPersonName((String) paramMap.get("nextPersonName"));
             dormitory.setUpdateTime(PlugDateUtil.getCurDateTime());
+            
+            //将plan主表中的PARTITION_NUMBER字段，划分人数
+            Map<String, Object> planMap =  new HashMap<String, Object>();
+            planMap.put("PLAN_ID", (String) paramMap.get("planId"));
+            List<DormitoryPlanStu> planStuList = dormitoryPlanStuMapper.selectByMap(planMap);
+            dormitory.setPartitionNumber(planStuList.size());
+            
+            
             Boolean saveResult = dormitoryPlanService.saveOrUpdate(dormitory);
             if (!saveResult) {
                 return new R(false, "调用工作流程后回更失败", "");
             }
 
+           
+            
             return new R(true, "操作成功", "");
         } catch (Exception e) {
             logger.error("操作失败-=- {}", e.toString());

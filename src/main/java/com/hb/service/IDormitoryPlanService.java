@@ -17,4 +17,6 @@ import java.util.Map;
 public interface IDormitoryPlanService extends IService<DormitoryPlan> {
 
     public  Page<Map> selectDormitoryPlan(Page page, Map<String,Object> param);
+    
+    public Page<Map> selectSysUser(Page page, Map<String,Object> param);
 }

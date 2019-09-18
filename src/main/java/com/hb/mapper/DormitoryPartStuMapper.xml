@@ -34,6 +34,10 @@
 
 
 
+        <if test="param.state != null and param.state != ''">
+			AND dps.`STATE` = #{param.state,jdbcType=VARCHAR}
+		</if>
+
 		<if test="param.studentIdList != null and param.studentIdList != ''">
 			AND dps.`STUDENT_ID` IN ${param.studentIdList}
 		</if>

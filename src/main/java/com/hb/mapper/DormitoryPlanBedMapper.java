@@ -18,4 +18,5 @@ import java.util.Map;
  */
 public interface DormitoryPlanBedMapper extends BaseMapper<DormitoryPlanBed> {
     public List<Map<String, Object>> selectPlanBed(Page page, @Param("param") Map<String, Object> param);
-}
+    public List<Map<String, Object>> selectSysBed(Page page, @Param("param") Map<String, Object> param);
+    }

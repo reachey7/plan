@@ -2,17 +2,63 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hb.mapper.DormitoryBedStuMapper">
 
-    <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.hb.entity.DormitoryBedStu">
-        <id column="ID" property="id"/>
-        <result column="STUDENT_ID" property="studentId"/>
-        <result column="BED_ID" property="bedId"/>
-        <result column="OPERATOR_ID" property="operatorId"/>
-        <result column="OPERAT_DATE" property="operatDate"/>
-        <result column="STATE" property="state"/>
-        <result column="BEGIN_DATE" property="beginDate"/>
-        <result column="END_DATE" property="endDate"/>
-        <result column="IN_MODE" property="inMode"/>
-    </resultMap>
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.hb.entity.DormitoryBedStu">
+		<id column="ID" property="id" />
+		<result column="STUDENT_ID" property="studentId" />
+		<result column="BED_ID" property="bedId" />
+		<result column="OPERATOR_ID" property="operatorId" />
+		<result column="OPERAT_DATE" property="operatDate" />
+		<result column="STATE" property="state" />
+		<result column="BEGIN_DATE" property="beginDate" />
+		<result column="END_DATE" property="endDate" />
+		<result column="IN_MODE" property="inMode" />
+	</resultMap>
+
+	<select id="selectBedStu" resultType="java.util.Map"
+		parameterType="java.util.Map">
+
+
+
+		SELECT
+		dorm.*,
+		bed.`BED_CODE`,
+		stu.`STUDENT_NO`,
+		stu.`NAME`,
+		stu.`NATION`,
+		stu.`ID` AS STU_ID,
+		coll.`name` AS COLLEGE_NAME,
+		major.`name` AS MAJOR_NAME
+		FROM
+		dormitory_bed_stu t,
+		student_info stu,
+		sys_bed bed,
+		sys_dorm dorm,
+		sys_major major,
+		sys_college coll
+		WHERE t.`BED_ID` = bed.`ID`
+		AND t.`STUDENT_ID` = stu.`ID`
+		AND dorm.`ID`=bed.`DORM_ID`
+		AND major.`id`=stu.`MAJOR_ID`
+		AND coll.id=stu.`college_ID`
+
+		<if test="param.stuId != null and param.stuId != ''">
+			AND stu.`ID`=#{param.stuId,jdbcType=VARCHAR}
+		</if>
+
+		<if test="param.stuNo != null and param.stuNo != ''">
+			AND stu.`STUDENT_NO` =#{param.stuNo,jdbcType=VARCHAR}
+		</if>
+
+
+		<if test="param.stuName != null and param.stuName != ''">
+			AND stu.`NAME` LIKE '%${param.stuName}%'
+		</if>
+
+
+
+
+
+	</select>
 
 </mapper>

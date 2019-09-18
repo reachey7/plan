@@ -37,4 +37,12 @@ public class DormitoryPlanBedServiceImpl extends ServiceImpl<DormitoryPlanBedMap
         page.setRecords(resultList);
         return page;
     }
+    
+    @Override
+    public Page<Map> selectSysBed(Page page, Map<String, Object> param) {
+        List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+        resultList = dormitoryPlanBedMapper.selectSysBed(page, param);
+        page.setRecords(resultList);
+        return page;
+    }
 }

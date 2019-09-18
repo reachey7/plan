@@ -15,5 +15,9 @@ import java.util.Map;
  * @since 2019-08-12
  */
 public interface IDormitoryPartBedService extends IService<DormitoryPartBed> {
+	
     public Page<Map> selectPartBed(Page page, Map<String,Object> param);
+    
+    public Page<Map> selectPartBedByStu(Page page, Map<String,Object> param);
+    
 }

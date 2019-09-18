@@ -2,63 +2,95 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hb.mapper.DormitoryPlanMapper">
 
-    <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.hb.entity.DormitoryPlan">
-        <id column="ID" property="id"/>
-        <result column="PLAN_CODE" property="planCode"/>
-        <result column="PLAN_NAME" property="planName"/>
-        <result column="PARTITION_NUMBER" property="partitionNumber"/>
-        <result column="DISTRIBUTE_NUMBER" property="distributeNumber"/>
-        <result column="CREATE_TIME" property="createTime"/>
-        <result column="CREATE_PERSON_ID" property="createPersonId"/>
-        <result column="CREATE_PERSON_NAME" property="createPersonName"/>
-        <result column="DESCRIPTION" property="description"/>
-        <result column="PLAN_STATUS" property="planStatus"/>
-        <result column="SUBJECT_ID" property="subjectId"/>
-        <result column="PLAN_STU_NUMBER" property="planStuNumber"/>
-        <result column="HF_OVER_NUMBER" property="hfOverNumber"/>
-        <result column="FP_OVER_NUMBER" property="fpOverNumber"/>
-        <result column="CURRENT_PERSON_ID" property="currentPersonId"/>
-        <result column="CURRENT_PERSON_NAME" property="currentPersonName"/>
-        <result column="STU_TYPE" property="stuType"/>
-    </resultMap>
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.hb.entity.DormitoryPlan">
+		<id column="ID" property="id" />
+		<result column="PLAN_CODE" property="planCode" />
+		<result column="PLAN_NAME" property="planName" />
+		<result column="PARTITION_NUMBER" property="partitionNumber" />
+		<result column="DISTRIBUTE_NUMBER" property="distributeNumber" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="CREATE_PERSON_ID" property="createPersonId" />
+		<result column="CREATE_PERSON_NAME" property="createPersonName" />
+		<result column="DESCRIPTION" property="description" />
+		<result column="PLAN_STATUS" property="planStatus" />
+		<result column="SUBJECT_ID" property="subjectId" />
+		<result column="PLAN_STU_NUMBER" property="planStuNumber" />
+		<result column="HF_OVER_NUMBER" property="hfOverNumber" />
+		<result column="FP_OVER_NUMBER" property="fpOverNumber" />
+		<result column="CURRENT_PERSON_ID" property="currentPersonId" />
+		<result column="CURRENT_PERSON_NAME" property="currentPersonName" />
+		<result column="STU_TYPE" property="stuType" />
+	</resultMap>
 
 
-    <select id="selectDormitoryPlan" resultType="java.util.Map"
-            parameterType="java.util.Map">
-          SELECT t.`VALUE2` ,p.* ,t.`VALUE2` as STU_TYPE_NAME FROM `dormitory_plan` p,sys_cparam t WHERE p.`STU_TYPE`=t.`value1`
-        <if test="param.planStatus != null and param.planStatus != ''">
-            and p.PLAN_STATUS = #{param.planStatus,jdbcType=VARCHAR}
-        </if>
+	<select id="selectSysUser" resultType="java.util.Map"
+		parameterType="java.util.Map">
 
-        <if test="param.startTime != null and param.startTime != '' ">
-            and
-            str_to_date(p.CREATE_TIME, '%Y-%m-%d %H:%i:%s') &gt;=
-            str_to_date(#{param.startTime,jdbcType=VARCHAR},'%Y-%m-%d %H:%i:%s' )
-        </if>
+		SELECT
+		u.*,o.`org_name`
+		FROM
+		`sys_user` u,
+		`sys_user_org` uo,
+		`sys_org` o
+		WHERE o.`org_id` = uo.`org_id`
+		AND u.`user_id` = uo.`user_id`
 
-        <if test="param.endTime != null and param.endTime != ''">
-            and
-            str_to_date(p.CREATE_TIME,'%Y-%m-%d %H:%i:%s' ) &lt;= str_to_date(
-            #{param.endTime,jdbcType=VARCHAR},'%Y-%m-%d %H:%i:%s')
-        </if>
 
-        <if test="param.planStatus != null and param.planStatus != ''">
-            and p.PLAN_STATUS = #{param.planStatus,jdbcType=VARCHAR}
-        </if>
+		<if test="param.userName != null and param.userName != ''">
+			AND u.`user_name` LIKE '%${param.userName}%'
+		</if>
 
-        <if test="param.planName != null and param.planName != ''">
-            and p.PLAN_NAME like  '%${param.planName}%'
-        </if>
+		<if test="param.phone != null and param.phone != ''">
+			AND u.`phone` LIKE '%${param.phone}%'
+		</if>
+		<if test="param.type != null and param.type != ''">
+			AND u.`type` = #{param.type,jdbcType=VARCHAR}
+		</if>
+	</select>
 
-        <if test="param.planCode != null and param.planCode != ''">
-            and p.PLAN_CODE = #{param.planCode,jdbcType=VARCHAR}
-        </if>
+	<select id="selectDormitoryPlan" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT t.`VALUE2` ,p.* ,t.`VALUE2` as STU_TYPE_NAME FROM
+		`dormitory_plan` p,sys_cparam t WHERE p.`STU_TYPE`=t.`value1`
+		<if test="param.planStatus != null and param.planStatus != ''">
+			and p.PLAN_STATUS = #{param.planStatus,jdbcType=VARCHAR}
+		</if>
 
-        <if test="param.id != null and param.id != ''">
-            and p.ID = #{param.id,jdbcType=VARCHAR}
-        </if>
-        
-        ORDER BY  p.`ID`  
-    </select>
+		<if test="param.startTime != null and param.startTime != '' ">
+			and
+			str_to_date(p.CREATE_TIME, '%Y-%m-%d %H:%i:%s') &gt;=
+			str_to_date(#{param.startTime,jdbcType=VARCHAR},'%Y-%m-%d %H:%i:%s' )
+		</if>
+
+		<if test="param.endTime != null and param.endTime != ''">
+			and
+			str_to_date(p.CREATE_TIME,'%Y-%m-%d %H:%i:%s' ) &lt;=
+			str_to_date(
+			#{param.endTime,jdbcType=VARCHAR},'%Y-%m-%d %H:%i:%s')
+		</if>
+
+
+		<if test="param.planName != null and param.planName != ''">
+			and p.PLAN_NAME like '%${param.planName}%'
+		</if>
+
+		<if test="param.planCode != null and param.planCode != ''">
+			and p.PLAN_CODE = #{param.planCode,jdbcType=VARCHAR}
+		</if>
+
+		<if test="param.createPersonId != null and param.createPersonId != ''">
+			and p.CREATE_PERSON_ID =
+			#{param.createPersonId,jdbcType=VARCHAR}
+		</if>
+		<if test="param.currentPersonId != null and param.currentPersonId != ''">
+			and p.CURRENT_PERSON_ID =
+			#{param.currentPersonId,jdbcType=VARCHAR}
+		</if>
+		<if test="param.id != null and param.id != ''">
+			and p.ID = #{param.id,jdbcType=VARCHAR}
+		</if>
+
+		ORDER BY p.`ID`
+	</select>
 </mapper>
