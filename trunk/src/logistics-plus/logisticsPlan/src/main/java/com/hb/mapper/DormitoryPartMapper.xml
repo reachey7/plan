@@ -31,6 +31,7 @@
 		SELECT
 		t.`VALUE2` AS PART_STATUS_NAME,
 		p.*,
+		 plan.`ACTIVITY_ID`,
 		plan.`PLAN_NAME`,
 		plan.`CREATE_TIME` as PLAN_CREATE_TIME,
 		plan.`CREATE_PERSON_NAME` AS PLAN_CREATE_PERSON_NAME,
@@ -83,6 +84,16 @@
 		<if test="param.planId != null and param.planId != ''">
 			and p.PLAN_ID = #{param.planId,jdbcType=VARCHAR}
 		</if>
+		
+		<if test="param.currentPersonId != null and param.currentPersonId != ''">
+			and plan.CURRENT_PERSON_ID = #{param.currentPersonId,jdbcType=VARCHAR}
+		</if>
+		
+		<if test="param.partCurrentPersonId != null and param.partCurrentPersonId != ''">
+			AND p.`CURRENT_PERSON_ID` = #{param.partCurrentPersonId,jdbcType=VARCHAR}
+		</if>
+		  
+		
 		<if test="param.groupPlan != null and param.groupPlan != ''">
 			GROUP BY PLAN.ID
 		</if>

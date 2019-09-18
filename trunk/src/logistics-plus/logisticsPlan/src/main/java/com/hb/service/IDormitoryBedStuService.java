@@ -1,7 +1,11 @@
 package com.hb.service;
 
-import com.hb.entity.DormitoryBedStu;
+import java.util.Map;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hb.entity.DormitoryBedStu;
+import com.hb.entity.R;
 
 /**
  * <p>
@@ -13,4 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IDormitoryBedStuService extends IService<DormitoryBedStu> {
 
+	public R saveBedStu(Map<String, Object> paramMap);
+	
+	public Page<Map> selectBedStu(Page page, Map<String,Object> param);
 }

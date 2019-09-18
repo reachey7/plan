@@ -37,4 +37,13 @@ public class DormitoryPartBedServiceImpl extends ServiceImpl<DormitoryPartBedMap
         page.setRecords(resultList);
         return page;
     }
+    
+    @Override
+    public Page<Map> selectPartBedByStu(Page page, Map<String, Object> param) {
+        List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+        resultList = dormitoryPartBedMapper.selectPartBedByStu(page, param);
+        page.setRecords(resultList);
+        return page;
+    } 
+    
 }

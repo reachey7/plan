@@ -28,7 +28,27 @@
 		AND dorm.id = bed.`DORM_ID`
 		<if test="param.planId != null and param.planId != ''">
 			AND planbed.`PLAN_ID`=
-			#{param.planId,jdbcType=VARCHAR} 
+			#{param.planId,jdbcType=VARCHAR}
+		</if>
+		<if test="param.state != null and param.state != ''">
+			AND planbed.`STATE`=''
+			#{param.state,jdbcType=VARCHAR}
+		</if>
+ 
+	</select>
+	<select id="selectSysBed" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		select
+		dorm.*,
+		bed.`BED_CODE`,
+		bed.`ID` as BED_ID
+		from
+		sys_bed bed,
+		sys_dorm dorm
+		where dorm.`ID` = bed.`DORM_ID`
+		<if test="param.bedStatus != null and param.bedStatus != ''">
+			and bed.`BED_STATUS` = 
+			#{param.bedStatus,jdbcType=VARCHAR}
 		</if>
 
 	</select>

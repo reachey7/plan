@@ -38,14 +38,20 @@ public class DormitoryBedStu implements Serializable {
     /**
      * 操作人
      */
-    @TableField("OPERATOR_ID")
-    private String operatorId;
+    @TableField("OPERATOR_PERSON_ID")
+    private String operatorPersonId;
+
+    /**
+     * 操作人
+     */
+    @TableField("OPERATOR_PERSON_NAME")
+    private String operatorPersonName;
 
     /**
      * 操作时间
      */
     @TableField("OPERAT_DATE")
-    private LocalDateTime operatDate;
+    private String operatDate;
 
     /**
      * 状态0失效1有效
@@ -57,13 +63,13 @@ public class DormitoryBedStu implements Serializable {
      * 开始时间
      */
     @TableField("BEGIN_DATE")
-    private LocalDateTime beginDate;
+    private String beginDate;
 
     /**
      * 结束时间
      */
     @TableField("END_DATE")
-    private LocalDateTime endDate;
+    private String endDate;
 
     /**
      * 办理渠道0开学季1个别入住
@@ -96,19 +102,12 @@ public class DormitoryBedStu implements Serializable {
         this.bedId = bedId;
     }
 
-    public String getOperatorId() {
-        return operatorId;
-    }
 
-    public void setOperatorId(String operatorId) {
-        this.operatorId = operatorId;
-    }
-
-    public LocalDateTime getOperatDate() {
+    public String getOperatDate() {
         return operatDate;
     }
 
-    public void setOperatDate(LocalDateTime operatDate) {
+    public void setOperatDate(String operatDate) {
         this.operatDate = operatDate;
     }
 
@@ -120,19 +119,19 @@ public class DormitoryBedStu implements Serializable {
         this.state = state;
     }
 
-    public LocalDateTime getBeginDate() {
+    public String getBeginDate() {
         return beginDate;
     }
 
-    public void setBeginDate(LocalDateTime beginDate) {
+    public void setBeginDate(String beginDate) {
         this.beginDate = beginDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
@@ -144,18 +143,25 @@ public class DormitoryBedStu implements Serializable {
         this.inMode = inMode;
     }
 
-    @Override
-    public String toString() {
-        return "DormitoryBedStu{" +
-        "id=" + id +
-        ", studentId=" + studentId +
-        ", bedId=" + bedId +
-        ", operatorId=" + operatorId +
-        ", operatDate=" + operatDate +
-        ", state=" + state +
-        ", beginDate=" + beginDate +
-        ", endDate=" + endDate +
-        ", inMode=" + inMode +
-        "}";
-    }
+	
+	public String getOperatorPersonId() {
+		return operatorPersonId;
+	}
+
+	
+	public void setOperatorPersonId(String operatorPersonId) {
+		this.operatorPersonId = operatorPersonId;
+	}
+
+	
+	public String getOperatorPersonName() {
+		return operatorPersonName;
+	}
+
+	
+	public void setOperatorPersonName(String operatorPersonName) {
+		this.operatorPersonName = operatorPersonName;
+	}
+
+  
 }

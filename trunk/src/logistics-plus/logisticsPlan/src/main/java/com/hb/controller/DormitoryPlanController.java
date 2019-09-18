@@ -49,9 +49,11 @@ public class DormitoryPlanController {
     public R add(@RequestBody DormitoryPlan dormitoryPlan) {
         try {
             dormitoryPlan.setId(IdUtil.createSerialSS(""));
-            dormitoryPlan.setPlanStatus("添加中");
+            dormitoryPlan.setPlanStatus("创建中");
             dormitoryPlan.setPlanCode(dormitoryPlan.getId());
             dormitoryPlan.setCreateTime(PlugDateUtil.getCurDateTime());
+            dormitoryPlan.setHfOverNumber(0);
+            dormitoryPlan.setPartitionNumber(0);
             boolean result = dormitoryPlanService.save(dormitoryPlan);
             if (!result) {
                 return new R(true, "新增失败", "");
@@ -78,6 +80,8 @@ public class DormitoryPlanController {
             dormitoryPlan.setPlanName(paramMap.get("planName")+"");
             dormitoryPlan.setDescription(paramMap.get("description")+"");
             dormitoryPlan.setStuType(paramMap.get("stuType")+"");
+            dormitoryPlan.setCurrentPersonId(paramMap.get("currentPersonId")+"");
+            dormitoryPlan.setCurrentPersonName(paramMap.get("currentPersonName")+"");
             
             Boolean result = dormitoryPlanService.updateById(dormitoryPlan);
             if (!result) {
@@ -114,6 +118,26 @@ public class DormitoryPlanController {
         }
     }
 
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.POST, value = "/querySysUser")
+    public R querySysUser(@RequestBody Map<String, Object> paramMap) {
+        try {
+
+            Page page = null;
+            if (StringUtils.isEmpty(paramMap.get("current")) || StringUtils.isEmpty(paramMap.get("size"))) {
+                page = new Page(0, 10);
+            } else {
+                page = new Page(Integer.parseInt(paramMap.get("current") + ""), Integer.parseInt(paramMap.get("size") + ""));
+            }
+            Page listPage = dormitoryPlanService.selectSysUser(page, paramMap);
+            return new R(true, "查询成功", listPage);
+
+        } catch (Exception e) {
+            logger.error("dormitoryPlanService -=- {}", e.toString());
+            return new R(true, "查询失败", e.toString());
+        }
+    }
+    
     /**
      * 查询
      */
@@ -174,6 +198,9 @@ public class DormitoryPlanController {
                 return new R(false, "根据planId未找到计划数据", "");
             }
 
+            if(!dormitory.getPlanStatus().equals("创建中")){
+            	 return new R(false, "非创建中状态的计划不可以实施!", "");
+            }
             //调用微服务工作流
             JSONObject activityJb = new JSONObject();
             activityJb.put("currentPersonId", dormitory.getCreatePersonId());

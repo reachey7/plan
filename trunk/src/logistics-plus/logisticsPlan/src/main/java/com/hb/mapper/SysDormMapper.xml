@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mapper.SysDormMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hb.entity.SysDorm">
+        <id column="ID" property="id" />
+        <result column="DORM_CODE" property="dormCode" />
+        <result column="DORM_NAME" property="dormName" />
+        <result column="FLOOR" property="floor" />
+        <result column="SIZE_ID" property="sizeId" />
+        <result column="USED_QUANTITY" property="usedQuantity" />
+        <result column="SQM" property="sqm" />
+        <result column="ROOM_TYPE_ID" property="roomTypeId" />
+        <result column="IS_STUDENT" property="isStudent" />
+        <result column="DORM_STATUS" property="dormStatus" />
+        <result column="REGISTER_TIME" property="registerTime" />
+        <result column="REMARK" property="remark" />
+        <result column="MAN_WOMEN" property="manWomen" />
+        <result column="YZ_NUMBER" property="yzNumber" />
+        <result column="IF_FULL" property="ifFull" />
+        <result column="CAMPUS_ID" property="campusId" />
+        <result column="CAMPUS_NAME" property="campusName" />
+        <result column="AREA_ID" property="areaId" />
+        <result column="AREA_NAME" property="areaName" />
+        <result column="BUILDING_ID" property="buildingId" />
+        <result column="BUILDING_NAME" property="buildingName" />
+        <result column="STATE" property="state" />
+    </resultMap>
+
+</mapper>

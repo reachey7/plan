@@ -37,4 +37,12 @@ public class DormitoryPlanServiceImpl extends ServiceImpl<DormitoryPlanMapper, D
         page.setRecords(resultList);
         return page;
     }
+    
+    @Override
+    public Page<Map> selectSysUser(Page page, Map<String, Object> param) {
+        List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+        resultList = dormitoryPlanMapper.selectSysUser(page, param);
+        page.setRecords(resultList);
+        return page;
+    }
 }

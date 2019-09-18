@@ -1,13 +1,9 @@
 package com.hb.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.hb.entity.DormitoryBedStu;
-import com.hb.service.IDormitoryPlanService;
-import com.hb.util.IdUtil;
-import com.hb.util.PlugDateUtil;
-import org.springframework.stereotype.Controller;
-
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,24 +14,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-
-import com.hb.service.IDormitoryPartService;
-import com.hb.util.SysHelperUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.hb.entity.DormitoryBedStu;
 import com.hb.entity.DormitoryPart;
+import com.hb.entity.DormitoryPartBed;
+import com.hb.entity.DormitoryPartStu;
 import com.hb.entity.DormitoryPlan;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hb.entity.DormitoryStuBedPlan;
 import com.hb.entity.R;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import com.hb.mapper.DormitoryBedStuMapper;
+import com.hb.mapper.DormitoryPartBedMapper;
+import com.hb.mapper.DormitoryPartStuMapper;
+import com.hb.mapper.DormitoryStuBedPlanMapper;
+import com.hb.service.IDormitoryBedStuService;
+import com.hb.service.IDormitoryPartService;
+import com.hb.service.IDormitoryPartStuService;
+import com.hb.service.IDormitoryPlanService;
+import com.hb.service.IDormitoryStuBedPlanService;
+import com.hb.util.IdUtil;
+import com.hb.util.PlugDateUtil;
+import com.hb.util.SysHelperUtil;
 
 /**
  * @author lirc
@@ -49,6 +51,20 @@ public class DormitoryPartController {
     @Autowired
     public IDormitoryPartService dormitoryPartService;
     @Autowired
+    public IDormitoryPartStuService dormitoryPartStuService;
+    @Autowired
+    public DormitoryPartStuMapper dormitoryPartStuMapper;
+    @Autowired
+    public DormitoryPartBedMapper dormitoryPartBedMapper;
+    @Autowired
+    public DormitoryBedStuMapper dormitoryBedStuMapper;
+    @Autowired
+    public DormitoryStuBedPlanMapper dormitoryStuBedPlanMapper;
+    @Autowired
+    public IDormitoryStuBedPlanService dormitoryStuBedPlanService;
+    @Autowired
+    public IDormitoryBedStuService dormitoryBedStuService;
+    @Autowired
     public IDormitoryPlanService dormitoryPlanService;
     @Autowired
     private RestTemplate restTemplate;
@@ -61,7 +77,9 @@ public class DormitoryPartController {
     public R add(@RequestBody DormitoryPart dormitoryPart) {
         try {
         	dormitoryPart.setId(IdUtil.createSerialSS(""));
-            dormitoryPart.setPartStatus("NO");
+            dormitoryPart.setPartStatus("0");
+            dormitoryPart.setBedNumber(0);
+            dormitoryPart.setStudentNumber(0);
             dormitoryPart.setPartCode(dormitoryPart.getId());
             dormitoryPart.setCreateTime(PlugDateUtil.getCurDateTime());
             boolean result = dormitoryPartService.save(dormitoryPart);
@@ -161,8 +179,9 @@ public class DormitoryPartController {
      * 3.1 由于activity微服务中在创建划分时默认多创建一个划分，所以分为两个方法。一个是huafenSubmit一个是huafenMSubmit
      * 3.2 判断当前计划下的划分是否有完成的划分，如果有则调用huafenMSubmit。dormitory_part表中的part_status=1则为完成
      * 4.根据工作流返回的结果判断是否成功，
-     * 4.1如果成功则更新dormitory_plan表中的PLAN_STATUS，CURRENT_PERSON_ID，CURRENT_PERSON_NAME
+     * 4.1如果成功则更新dormitory_plan表中的PLAN_STATUS以及part表中的CURRENT_PERSON_ID，CURRENT_PERSON_NAME
      * 4.2再根据微服务返回的信息，更新dormitory_part表中的TASK_ID以及表中的status，更新为1已划分
+     * 4.3将part表中的STUDENT_NUMBER和BED_NUMBER进行更新
      * 如果失败则返回给前台，允许前台再次调用
      *
      * @author lirc
@@ -220,25 +239,43 @@ public class DormitoryPartController {
             JSONObject jbresult = JSONObject.parseObject((String) activityCallR.getResult());
             String planStatus = jbresult.getString("status");
             dormitory.setPlanStatus(planStatus);
-            dormitory.setCurrentPersonId((String) paramMap.get("nextPersonId"));
-            dormitory.setCurrentPersonName((String) paramMap.get("nextPersonName"));
+            /*dormitory.setCurrentPersonId((String) paramMap.get("nextPersonId"));
+            dormitory.setCurrentPersonName((String) paramMap.get("nextPersonName"));*/
             Boolean saveReslt = dormitoryPlanService.saveOrUpdate(dormitory);
             if (!saveReslt) {
                 return new R(false, "调用工作流程后回更计划表失败", "");
             }
 
-
+           
+            
             //4.2再根据微服务返回的信息，更新dormitory_part表中的TASK_ID以及表中的status，更新为1已完成
             DormitoryPart dpart = dormitoryPartService.getById((String) paramMap.get("partId"));
+            dpart.setCurrentPersonId((String) paramMap.get("nextPersonId"));
+            dpart.setCurrentPersonName((String) paramMap.get("nextPersonName"));
             dpart.setPartStatus("1");
             dpart.setTaskId(jbresult.getString("taskId"));
+            
+            
+            //4.3将part表中的STUDENT_NUMBER和BED_NUMBER进行更新
+            Map<String, Object> partStuMap = new HashMap<String, Object>();
+            Map<String, Object> partBedMap = new HashMap<String, Object>();
+            partStuMap.put("PART_ID",(String) paramMap.get("partId"));
+            partBedMap.put("PART_ID",(String) paramMap.get("partId"));
+            List<DormitoryPartStu> partStuList = dormitoryPartStuMapper.selectByMap(partStuMap);
+            List<DormitoryPartBed> partBedList = dormitoryPartBedMapper.selectByMap(partBedMap);
+            dpart.setStudentNumber(partStuList.size());
+            dpart.setBedNumber(partBedList.size());
+            
+            
             //dpart.setTaskId("111");
             Boolean updateResult = dormitoryPartService.updateById(dpart);
             if (!updateResult) {
                 return new R(false, "调用工作流程后回更划分表失败", "");
             }
 
-
+            
+            
+            
             return new R(true, "操作成功", "");
         } catch (Exception e) {
             logger.error("操作失败-=- {}", e.toString());
@@ -259,6 +296,8 @@ public class DormitoryPartController {
      * 2.判断planId是否在数据库存在
      * 3.调用工作流微服务
      * 4.根据工作流返回的结果判断是否成功，如果成功则更新dormitory_plan表中的PLAN_STATUS，CURRENT_PERSON_ID，CURRENT_PERSON_NAME
+     * 5.将计划表中的HF_OVER_NUMBER已划分人数更新
+     * 6.将分配完成的学生与床位关系数据从dormitory_stu_bed_plan表中挪到dormitory_bed_stu表中
      * 如果失败则返回给前台，允许前台再次调用
      *
      * @author lirc
@@ -270,7 +309,6 @@ public class DormitoryPartController {
 
             //首先判断必填项
             List<String> list = new ArrayList<>();
-            list.add("activityId");
             list.add("currentPersonId");
       
 
@@ -294,7 +332,7 @@ public class DormitoryPartController {
             nextPersonIdList.add((String) paramMap.get("nextPersonId"));
 
             activityJb.put("nextPersonId", nextPersonIdList);
-            activityJb.put("processInstanceId", (String) paramMap.get("activityId"));
+            activityJb.put("processInstanceId", dormitory.getActivityId());
             activityJb.put("huafenType", "1");
             activityJb.put("partId", (String)paramMap.get("partId"));
 
@@ -310,11 +348,45 @@ public class DormitoryPartController {
             dormitory.setPlanStatus(planStatus);
             dormitory.setCurrentPersonId((String) paramMap.get("nextPersonId"));
             dormitory.setCurrentPersonName((String) paramMap.get("nextPersonName"));
+            
+            
+            //将计划表中的HF_OVER_NUMBER已划分人数更新
+            Map<String, Object> partStuMap = new HashMap<String, Object>();
+            partStuMap.put("PART_ID", (String)paramMap.get("partId"));
+            List<DormitoryPartStu> partStuList = dormitoryPartStuMapper.selectByMap(partStuMap);
+            dormitory.setHfOverNumber(dormitory.getHfOverNumber()+partStuList.size());
+            
             Boolean saveReslt = dormitoryPlanService.saveOrUpdate(dormitory);
             if (!saveReslt) {
                 return new R(false, "调用工作流程后回更失败", "");
             }
 
+            //将分配完成的学生与床位关系数据从dormitory_stu_bed_plan表中挪到dormitory_bed_stu表中
+            Map<String, Object> stuBedMap = new HashMap<String, Object>();
+            stuBedMap.put("PART_ID", (String)paramMap.get("partId"));
+            stuBedMap.put("STATE", "0");
+            List<DormitoryStuBedPlan> stuBedPlanList = dormitoryStuBedPlanMapper.selectByMap(stuBedMap);
+            List<DormitoryBedStu> bedStuList =  new ArrayList<DormitoryBedStu>();
+            for(DormitoryStuBedPlan tmp : stuBedPlanList){
+            	tmp.setState("1");
+            	DormitoryBedStu dbs = new DormitoryBedStu();
+            	dbs.setId(IdUtil.createSerialSS(""));
+            	dbs.setOperatDate(PlugDateUtil.getCurDateTime());
+            	dbs.setInMode("0");
+                dbs.setOperatorPersonId((String) paramMap.get("currentPersonId"));
+                bedStuList.add(dbs);
+            }
+            dormitoryBedStuService.saveBatch(bedStuList);
+            dormitoryStuBedPlanService.saveBatch(stuBedPlanList);
+            
+            //更新目前处理人信息
+            DormitoryPart dormitoryPart = dormitoryPartService.getById((String)paramMap.get("partId"));
+            dormitoryPart.setCurrentPersonId((String) paramMap.get("nextPersonId"));
+            dormitoryPart.setCurrentPersonName((String) paramMap.get("nextPersonName"));
+            dormitoryPartService.save(dormitoryPart);
+            
+            
+            
             return new R(true, "操作成功", "");
         } catch (Exception e) {
             logger.error("操作失败-=- {}", e.toString());

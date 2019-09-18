@@ -30,7 +30,7 @@ public class DormitoryPlanBed implements Serializable {
      * 创建时间
      */
          @TableField("CREATE_DATE")
-    private LocalDateTime createDate;
+    private String createDate;
 
         /**
      * 状态0失效1生效
@@ -67,11 +67,11 @@ public class DormitoryPlanBed implements Serializable {
         this.planId = planId;
     }
 
-    public LocalDateTime getCreateDate() {
+    public String getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
+    public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }
 

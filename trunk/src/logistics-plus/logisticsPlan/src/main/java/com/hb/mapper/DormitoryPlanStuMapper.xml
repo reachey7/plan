@@ -40,6 +40,9 @@
 		<if test="param.name != null and param.name != ''">
 			AND i.`NAME` LIKE '%${param.name}%'
 		</if>
+		<if test="param.isCheckin != null and param.isCheckin != ''">
+			  AND i.`IS_CHECKIN`=#{param.isCheckin,jdbcType=VARCHAR}
+		</if>
 		<if test="param.studentNo != null and param.studentNo != ''">
 			AND I.`STUDENT_NO` =#{param.studentNo,jdbcType=VARCHAR}
 		</if>

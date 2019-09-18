@@ -24,15 +24,22 @@
 		dorm.`FLOOR`,
 		bu.`AREA_NAME`,
 		bu.`CAMPUS_NAME`,
-		dorm.`DORM_NAME`
+		dorm.`DORM_NAME`,
+		partbed.`PART_ID`
 		FROM
 		`dormitory_part_bed` partbed,
 		`sys_bed` bed,
 		`sys_dorm` dorm,
 		`sys_build` bu
-		WHERE partbed.`BED_ID` = bed.`ID`
+		WHERE partbed.`BED_ID` =
+		bed.`ID`
 		AND dorm.`ID` = bed.`DORM_ID`
 		AND bu.`ID` = dorm.`BUILDING_ID`
+
+		<if test="param.state != null and param.state != ''">
+			AND partbed.`STATE` = #{param.state,jdbcType=VARCHAR}
+		</if>
+
 		<if test="param.bedIdList != null and param.bedIdList != ''">
 			AND bed.`ID` in ${param.bedIdList}
 		</if>
@@ -44,4 +51,35 @@
 
 	</select>
 
+	<select id="selectPartBedByStu" resultType="java.util.Map"
+		parameterType="java.util.Map">
+
+		SELECT
+		partbed.*,
+		bed.`BED_CODE`,
+		bed.`BED_NUMBER`,
+		dorm.`BUILDING_NAME`,
+		bu.`BUILDING_NAME`,
+		dorm.`FLOOR`,
+		bu.`AREA_NAME`,
+		bu.`CAMPUS_NAME`,
+		dorm.`DORM_NAME`,
+		partbed.`PART_ID`,
+		partbed.`STATE`
+		FROM
+		`dormitory_part_bed` partbed,
+		`sys_bed` bed,
+		`sys_dorm` dorm,
+		`sys_build` bu
+		WHERE partbed.`BED_ID` = bed.`ID`
+		AND dorm.`ID` = bed.`DORM_ID`
+		AND bu.`ID` = dorm.`BUILDING_ID`
+		AND partbed.`PART_ID` =
+		(SELECT
+		partstu.`PART_ID`
+		FROM
+		`dormitory_part_stu` partstu
+		WHERE partstu.`STUDENT_ID` = #{param.stuId,jdbcType=VARCHAR})
+
+	</select>
 </mapper>
