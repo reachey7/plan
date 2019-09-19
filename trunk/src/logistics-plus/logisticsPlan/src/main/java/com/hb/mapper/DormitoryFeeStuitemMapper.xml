@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mapper.DormitoryFeeStuitemMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hb.entity.DormitoryFeeStuitem">
+        <id column="ID" property="id" />
+        <result column="FEE_STU_ID" property="feeStuId" />
+        <result column="CREATE_DATE" property="createDate" />
+        <result column="CREATE_OPERATE_PERSON_ID" property="createOperatePersonId" />
+        <result column="CREATE_OPERATE_PERSON_NAME" property="createOperatePersonName" />
+        <result column="STATE" property="state" />
+        <result column="REMARK" property="remark" />
+        <result column="ITEM_PAY_FEE" property="itemPayFee" />
+    </resultMap>
+
+</mapper>

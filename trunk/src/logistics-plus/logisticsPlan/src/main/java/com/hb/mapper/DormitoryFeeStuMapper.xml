@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hb.mapper.DormitoryFeeStuMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.hb.entity.DormitoryFeeStu">
+		<id column="ID" property="id" />
+		<result column="STUDENT_ID" property="studentId" />
+		<result column="YEAR" property="year" />
+		<result column="PAY_FEE_SHOULD" property="payFeeShould" />
+		<result column="PAY_FEE_REAL" property="payFeeReal" />
+		<result column="STUDENT_NAME" property="studentName" />
+		<result column="STUDENT_NUM" property="studentNum" />
+	</resultMap>
+
+
+	<select id="selectFeeStu" resultType="java.util.Map"
+		parameterType="java.util.Map">
+
+
+
+	</select>
+
+
+	<select id="selectBedFee" resultType="java.util.Map"
+		parameterType="java.util.Map">
+
+		SELECT
+		cp.`VALUE2`,cp.`VRESULT`,dorm.*
+		FROM
+		student_info stu,
+		dormitory_bed_stu bedstu,
+		sys_bed bed,
+		sys_dorm dorm,
+		sys_cparam cp
+		WHERE
+		stu.`ID` = bedstu.`STUDENT_ID`
+		AND
+		bed.`ID`=bedstu.`BED_ID`
+		AND bed.`DORM_ID`=dorm.`ID`
+		AND
+		dorm.`SIZE_ID`=cp.`VALUE1`
+		<if test="param.stuNum != null and param.stuNum != ''">
+			AND stu.`STUDENT_NO` = #{param.stuNum,jdbcType=VARCHAR}
+		</if>
+	</select>
+</mapper>
