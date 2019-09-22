@@ -17,7 +17,7 @@
 	<select id="selectStudent" resultType="java.util.Map"
 		parameterType="java.util.Map">
 		SELECT
-		i.*,
+		i.*,(CASE WHEN i.sex = '0'THEN '女'ELSE '男' END) SEX_NAME,
 		c.`campus_name` CAMPUS_NAME,
 		m.`name` AS MAJOR_NAME,
 		cg.`name` AS COLLEGE_NAME,
@@ -30,10 +30,8 @@
 		sys_cparam cp
 		WHERE i.`CAMPUS_ID` = c.`id`
 		AND i.`MAJOR_ID` = m.`id`
-		AND
-		i.`college_ID` = cg.`id`
+		AND i.`college_ID` = cg.`id`
 		AND i.STU_TYPE = cp.`VALUE1`
-
 		<if test="param.campusName != null and param.campusName != ''">
 			and p.CAMPUS_ID like '%${param.campusName}%'
 		</if>
@@ -41,7 +39,7 @@
 			AND i.`NAME` LIKE '%${param.name}%'
 		</if>
 		<if test="param.isCheckin != null and param.isCheckin != ''">
-			  AND i.`IS_CHECKIN`=#{param.isCheckin,jdbcType=VARCHAR}
+			AND i.`IS_CHECKIN`=#{param.isCheckin,jdbcType=VARCHAR}
 		</if>
 		<if test="param.studentNo != null and param.studentNo != ''">
 			AND I.`STUDENT_NO` =#{param.studentNo,jdbcType=VARCHAR}
@@ -60,9 +58,9 @@
 			`dormitory_plan_stu` planstu
 			WHERE planstu.`PLAN_ID`=
 			#{param.planId,jdbcType=VARCHAR}
-			
+
 			and planstu.state='1')
-			
+
 		</if>
 
 

@@ -98,7 +98,8 @@ public class DormitoryStuBedPlanController {
 			list.add("planId");
 			list.add("studentList");
 			list.add("bedList");
-			list.add("operatorPerson");
+			list.add("operatorPersonId");
+			list.add("operatorPersonName");
 			list.add("type");
 			list.add("fenpeiRule");
 
@@ -178,7 +179,8 @@ public class DormitoryStuBedPlanController {
 				dsbp.setId(IdUtil.createSerialSS(""));
 				dsbp.setBedId((String) ((Map<String, Object>) partBedPage.getRecords().get(i)).get("BED_ID"));
 				dsbp.setCreateDate(PlugDateUtil.getCurDateTimeHS());
-				dsbp.setOperatorPerson(paramMap.get("operatorPerson") + "");
+				dsbp.setOperatorPersonId(paramMap.get("operatorPersonId") + "");
+				dsbp.setOperatorPersonName(paramMap.get("operatorPersonName") + "");
 				dsbp.setPartId((String) ((Map<String, Object>) partBedPage.getRecords().get(i)).get("PART_ID"));
 				dsbp.setPlanId((String) paramMap.get("planId"));
 				dsbp.setStuId((String) ((Map<String, Object>) partStuPage.getRecords().get(i)).get("ID"));
@@ -225,7 +227,7 @@ public class DormitoryStuBedPlanController {
 					Map<String, Object> activityMap = new HashMap<String, Object>();
 					activityMap.put("partId", paramMap.get("partId") + "");
 					activityMap.put("planId", paramMap.get("planId") + "");
-					activityMap.put("currentPersonId", paramMap.get("operatorPerson") + "");
+					activityMap.put("currentPersonId", paramMap.get("operatorPersonId") + "");
 					activityMap.put("taskId", part.getTaskId());
 					activityMap.put("activityId", plan.getActivityId());
 
@@ -332,7 +334,7 @@ public class DormitoryStuBedPlanController {
 			dsbp.setId(IdUtil.createSerialSS(""));
 			dsbp.setBedId(paramMap.get("bedId") + "");
 			dsbp.setCreateDate(PlugDateUtil.getCurDateTimeHS());
-			dsbp.setOperatorPerson("stuAuto");
+			dsbp.setOperatorPersonId("stuAuto");
 			dsbp.setPartId(paramMap.get("partId") + "");
 			dsbp.setPlanId(paramMap.get("planId") + "");
 			dsbp.setStuId(paramMap.get("studentId") + "");

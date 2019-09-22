@@ -59,6 +59,12 @@ public class DormitoryPart implements Serializable {
     private String createPersonId;
 
     /**
+     * 创建人
+     */
+    @TableField("CREATE_PERSON_NAME")
+    private String createPersonName;
+
+    /**
      * 分配人ID
      */
     @TableField("CURRENT_PERSON_ID")
@@ -277,7 +283,21 @@ public class DormitoryPart implements Serializable {
         this.currentPersonName = currentPersonName;
     }
 
-    @Override
+    /**
+	 * @return the createPersonName
+	 */
+	public String getCreatePersonName() {
+		return createPersonName;
+	}
+
+	/**
+	 * @param createPersonName the createPersonName to set
+	 */
+	public void setCreatePersonName(String createPersonName) {
+		this.createPersonName = createPersonName;
+	}
+
+	@Override
     public String toString() {
         return "DormitoryPart{" +
         "id=" + id +

@@ -63,7 +63,7 @@ public class AutoCode {
 		// strategy.setTablePrefix(new String[] { "hb_" });// 此处可以修改为您的表前缀
 
 		strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
-		strategy.setInclude(new String[] { "dormitory_dorm_stu_change" }); // 需要生成的表
+		strategy.setInclude(new String[] { "dormitory_fee_stuitem" }); // 需要生成的表
 
 		strategy.setSuperServiceClass(null);
 		strategy.setSuperServiceImplClass(null);
