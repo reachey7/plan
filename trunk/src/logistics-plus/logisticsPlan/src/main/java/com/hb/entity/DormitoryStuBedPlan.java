@@ -31,9 +31,13 @@ public class DormitoryStuBedPlan implements Serializable {
     @TableField("PART_ID")
     private String partId;
 
-    @TableField("OPERATOR_PERSON")
-    private String operatorPerson;
+    @TableField("OPERATOR_PERSON_ID")
+    private String operatorPersonId;
 
+    @TableField("OPERATOR_PERSON_NAME")
+    private String operatorPersonName;
+
+    
     @TableField("CREATE_DATE")
     private String createDate;
 
@@ -87,15 +91,37 @@ public class DormitoryStuBedPlan implements Serializable {
         this.partId = partId;
     }
 
-    public String getOperatorPerson() {
-        return operatorPerson;
-    }
+    
 
-    public void setOperatorPerson(String operatorPerson) {
-        this.operatorPerson = operatorPerson;
-    }
+    /**
+	 * @return the operatorPersonId
+	 */
+	public String getOperatorPersonId() {
+		return operatorPersonId;
+	}
 
-    public String getCreateDate() {
+	/**
+	 * @param operatorPersonId the operatorPersonId to set
+	 */
+	public void setOperatorPersonId(String operatorPersonId) {
+		this.operatorPersonId = operatorPersonId;
+	}
+
+	/**
+	 * @return the operatorPersonName
+	 */
+	public String getOperatorPersonName() {
+		return operatorPersonName;
+	}
+
+	/**
+	 * @param operatorPersonName the operatorPersonName to set
+	 */
+	public void setOperatorPersonName(String operatorPersonName) {
+		this.operatorPersonName = operatorPersonName;
+	}
+
+	public String getCreateDate() {
         return createDate;
     }
 
@@ -119,18 +145,5 @@ public class DormitoryStuBedPlan implements Serializable {
         this.type = type;
     }
 
-    @Override
-    public String toString() {
-        return "DormitoryStuBedPlan{" +
-        "id=" + id +
-        ", stuId=" + stuId +
-        ", bedId=" + bedId +
-        ", planId=" + planId +
-        ", partId=" + partId +
-        ", operatorPerson=" + operatorPerson +
-        ", createDate=" + createDate +
-        ", state=" + state +
-        ", type=" + type +
-        "}";
-    }
+   
 }

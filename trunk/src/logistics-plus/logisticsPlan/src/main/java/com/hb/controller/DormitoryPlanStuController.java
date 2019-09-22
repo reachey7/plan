@@ -109,8 +109,6 @@ public class DormitoryPlanStuController {
             List<String> list = new ArrayList<>();
             list.add("planId");
         	list.add("operatorId");
-        	list.add("stuSex");
-        	list.add("stuType");
         	 R checkR = SysHelperUtil.check(list, paramMap);
              if (!checkR.isState()) {
                  return checkR;
